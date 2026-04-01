@@ -230,7 +230,11 @@ export function LocationNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-destructive/30 hover:border-destructive/50" selected={selected}>
       <NodeHeader icon={MapPin} label={data.label} iconBg="bg-destructive/10" iconColor="text-destructive" />
       <NodeContent>
-        <p>{data.content || 'Solicitar localização do contato...'}</p>
+        {data.content ? (
+          <p>{data.content}</p>
+        ) : (
+          <p className="italic text-muted-foreground/50">📍 Solicitar localização GPS do contato...</p>
+        )}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
     </NodeShell>
