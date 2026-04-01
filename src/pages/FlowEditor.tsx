@@ -205,7 +205,7 @@ export default function FlowEditor() {
   }
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] flex flex-col animate-fade-in">
+    <div className="h-[calc(100vh-3.5rem)] flex flex-col animate-fade-in overflow-hidden">
       {/* Header */}
       <div className="h-12 px-4 flex items-center justify-between border-b border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
