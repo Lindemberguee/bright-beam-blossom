@@ -152,11 +152,16 @@ export function StartNode({ data, selected }: any) {
 /* ── Message Nodes ───────────────────────────────────────────── */
 
 export function MessageNode({ data, selected }: any) {
+  const isEmpty = !data.content;
   return (
     <NodeShell className="bg-card border border-border hover:border-primary/40" selected={selected}>
       <NodeHeader icon={MessageSquare} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" />
       <NodeContent>
-        <p className="line-clamp-3">{data.content || 'Configurar mensagem...'}</p>
+        {isEmpty ? (
+          <p className="italic text-muted-foreground/50">✏️ Clique para escrever sua mensagem de texto, imagem ou arquivo...</p>
+        ) : (
+          <p className="line-clamp-3">{data.content}</p>
+        )}
       </NodeContent>
       {data.mediaType && data.mediaType !== 'none' && <MediaIndicator type={data.mediaType} />}
       {data.variable && <VariableBadge name={data.variable} />}
@@ -172,7 +177,11 @@ export function QuestionNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-info/40 hover:border-info/60" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={HelpCircle} label={data.label} iconBg="bg-info/15" iconColor="text-info" badge={responseLabels[data.responseType] || undefined} />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Configurar pergunta...'}</p>
+        {data.content ? (
+          <p className="line-clamp-2">{data.content}</p>
+        ) : (
+          <p className="italic text-muted-foreground/50">❓ Defina a pergunta e o tipo de resposta esperada...</p>
+        )}
       </NodeContent>
       {data.options && (
         <div className="mt-2 space-y-1">
@@ -194,7 +203,11 @@ export function MenuNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-primary/30 hover:border-primary/50" sourceHandleColor="!bg-primary" selected={selected}>
       <NodeHeader icon={ListChecks} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge="Menu" />
       <NodeContent>
-        <p className="mb-2">{data.content || 'Menu interativo...'}</p>
+        {data.content ? (
+          <p className="mb-2">{data.content}</p>
+        ) : (
+          <p className="mb-2 italic text-muted-foreground/50">📋 Configure o texto e os botões do menu...</p>
+        )}
       </NodeContent>
       {data.buttons && (data.buttons as string[]).length > 0 && (
         <div className="space-y-1">
@@ -217,7 +230,11 @@ export function LocationNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-destructive/30 hover:border-destructive/50" selected={selected}>
       <NodeHeader icon={MapPin} label={data.label} iconBg="bg-destructive/10" iconColor="text-destructive" />
       <NodeContent>
-        <p>{data.content || 'Solicitar localização do contato...'}</p>
+        {data.content ? (
+          <p>{data.content}</p>
+        ) : (
+          <p className="italic text-muted-foreground/50">📍 Solicitar localização GPS do contato...</p>
+        )}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
     </NodeShell>
@@ -250,7 +267,7 @@ export function ConditionNode({ data, selected }: any) {
             {data.conditionValue && <span className="font-mono text-foreground bg-muted px-1 rounded">{data.conditionValue}</span>}
           </div>
         ) : (
-          <p>{data.content || 'Configurar condição...'}</p>
+          <p className="italic text-muted-foreground/50">🔀 Defina variável, operador e valor para a condição...</p>
         )}
       </NodeContent>
       <div className="flex justify-between mt-2.5 text-[9px] font-semibold">
@@ -284,7 +301,7 @@ export function ValidationNode({ data, selected }: any) {
         badge={typeLabels[data.validationType] || undefined}
       />
       <NodeContent>
-        <p>{data.content || 'Validar dado recebido...'}</p>
+        {data.content ? <p>{data.content}</p> : <p className="italic text-muted-foreground/50">🔒 Selecione o tipo de validação (CPF, e-mail, telefone...)</p>}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
       <div className="flex justify-between mt-2.5 text-[9px] font-semibold">
@@ -305,7 +322,7 @@ export function AINode({ data, selected }: any) {
     >
       <NodeHeader icon={Brain} label={data.label} iconBg="bg-primary/20" iconColor="text-primary" badge={data.model || 'IA'} />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Resposta inteligente com IA...'}</p>
+        {data.content ? <p className="line-clamp-2">{data.content}</p> : <p className="italic text-muted-foreground/50">🤖 Configure o prompt e o modelo de IA...</p>}
       </NodeContent>
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         {data.model && (
@@ -331,7 +348,7 @@ export function TransferNode({ data, selected }: any) {
             <span className="bg-success/10 text-success text-[10px] font-medium px-2 py-0.5 rounded-md">{data.department}</span>
           </div>
         ) : (
-          <p>Selecionar destino...</p>
+          <p className="italic text-muted-foreground/50">👤 Selecione o departamento ou agente...</p>
         )}
       </NodeContent>
       {data.transferMessage && (
@@ -354,7 +371,7 @@ export function ActionNode({ data, selected }: any) {
         {data.actionType ? (
           <span className="text-[10px] font-medium">{actionLabels[data.actionType] || data.actionType}</span>
         ) : (
-          <p>Configurar ação...</p>
+          <p className="italic text-muted-foreground/50">🎯 Escolha uma ação: tag, variável, CRM...</p>
         )}
         {data.actionType === 'add_tag' && data.tagValue && (
           <div className="mt-1.5">
@@ -374,7 +391,7 @@ export function SendNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-info/30 hover:border-info/50" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={Send} label={data.label} iconBg="bg-info/15" iconColor="text-info" />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Disparar mensagem/notificação...'}</p>
+        {data.content ? <p className="line-clamp-2">{data.content}</p> : <p className="italic text-muted-foreground/50">📤 Configure a mensagem ou notificação a disparar...</p>}
       </NodeContent>
       {data.mediaType && data.mediaType !== 'none' && <MediaIndicator type={data.mediaType} />}
     </NodeShell>
@@ -398,7 +415,7 @@ export function WebhookNode({ data, selected }: any) {
             </div>
           </>
         ) : (
-          <p>Configurar webhook...</p>
+          <p className="italic text-muted-foreground/50">🔗 Informe a URL e o método do webhook...</p>
         )}
       </NodeContent>
     </NodeShell>
@@ -418,7 +435,7 @@ export function HttpNode({ data, selected }: any) {
             <span className="truncate max-w-[150px] font-mono text-[10px]">{data.url}</span>
           </div>
         ) : (
-          <p>Configurar requisição HTTP...</p>
+          <p className="italic text-muted-foreground/50">🌐 Configure URL, método, headers e body...</p>
         )}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
@@ -440,7 +457,7 @@ export function DelayNode({ data, selected }: any) {
             <span className="text-xs text-muted-foreground">{unitLabels[data.delayUnit] || data.delayUnit || 'min'}</span>
           </div>
         ) : (
-          <p>{data.duration || 'Configurar tempo...'}</p>
+          <p className="italic text-muted-foreground/50">⏳ Defina a duração da espera...</p>
         )}
       </NodeContent>
     </NodeShell>
@@ -458,7 +475,7 @@ export function ScheduleNode({ data, selected }: any) {
             {data.scheduleDays && <span className="text-[9px] text-muted-foreground">{data.scheduleDays}</span>}
           </div>
         ) : (
-          <p>{data.content || 'Agendar horário...'}</p>
+          <p className="italic text-muted-foreground/50">🕐 Defina o horário e os dias do agendamento...</p>
         )}
       </NodeContent>
     </NodeShell>
@@ -476,7 +493,7 @@ export function LoopNode({ data, selected }: any) {
             <span className="text-[10px] text-muted-foreground">repetições</span>
           </div>
         ) : (
-          <p>{data.content || 'Configurar loop...'}</p>
+          <p className="italic text-muted-foreground/50">🔄 Defina o número de repetições e condição de parada...</p>
         )}
         {data.loopCondition && (
           <p className="text-[10px] text-warning/70 mt-1 font-mono">até: {data.loopCondition}</p>
