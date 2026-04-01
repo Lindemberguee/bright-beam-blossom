@@ -179,8 +179,66 @@ export default function FlowEditor() {
 
   const handleSave = useCallback(() => {
     if (!id) return;
-    saveFlow.mutate({ flowId: id, nodes, edges, name: flow?.name });
+    const snapshot = JSON.stringify({ nodes, edges });
+    if (snapshot === lastSavedRef.current) return; // no real change
+    setSaveStatus('saving');
+    saveFlow.mutate(
+      { flowId: id, nodes, edges, name: flow?.name },
+      {
+        onSuccess: () => {
+          lastSavedRef.current = snapshot;
+          setSaveStatus('saved');
+          hasChanges.current = false;
+        },
+        onError: () => setSaveStatus('unsaved'),
+      }
+    );
   }, [id, nodes, edges, flow, saveFlow]);
+
+  // Track changes for auto-save
+  useEffect(() => {
+    if (!initialized || !id) return;
+    const snapshot = JSON.stringify({ nodes, edges });
+    if (snapshot === lastSavedRef.current) return;
+    hasChanges.current = true;
+    setSaveStatus('unsaved');
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      handleSave();
+    }, 3000);
+
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [nodes, edges, initialized, id, handleSave]);
+
+  // Ctrl+S shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleSave]);
+
+  // Save on blur (tab switch)
+  useEffect(() => {
+    const handler = () => {
+      if (hasChanges.current && id) handleSave();
+    };
+    document.addEventListener('visibilitychange', handler);
+    window.addEventListener('beforeunload', (e) => {
+      if (hasChanges.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, [handleSave, id]);
 
   const handlePaneDoubleClick = useCallback((event: React.MouseEvent) => {
     if (!reactFlowInstance) return;
