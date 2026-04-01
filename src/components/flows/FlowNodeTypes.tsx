@@ -493,7 +493,7 @@ export function LoopNode({ data, selected }: any) {
             <span className="text-[10px] text-muted-foreground">repetições</span>
           </div>
         ) : (
-          <p>{data.content || 'Configurar loop...'}</p>
+          <p className="italic text-muted-foreground/50">🔄 Defina o número de repetições e condição de parada...</p>
         )}
         {data.loopCondition && (
           <p className="text-[10px] text-warning/70 mt-1 font-mono">até: {data.loopCondition}</p>
