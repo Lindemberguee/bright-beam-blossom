@@ -14,13 +14,296 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contacts: {
+        Row: {
+          assigned_to: string | null
+          avatar_url: string | null
+          company: string | null
+          created_at: string
+          custom_fields: Json | null
+          email: string | null
+          id: string
+          last_interaction: string | null
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          score: number | null
+          source: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          id?: string
+          last_interaction?: string | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          score?: number | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          id?: string
+          last_interaction?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          score?: number | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          assigned_to: string | null
+          channel: string
+          contact_id: string
+          created_at: string
+          department: string | null
+          id: string
+          is_pinned: boolean | null
+          last_message: string | null
+          last_message_at: string | null
+          organization_id: string
+          priority: string
+          status: string
+          tags: string[] | null
+          unread_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          channel?: string
+          contact_id: string
+          created_at?: string
+          department?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          last_message?: string | null
+          last_message_at?: string | null
+          organization_id: string
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          unread_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          channel?: string
+          contact_id?: string
+          created_at?: string
+          department?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          last_message?: string | null
+          last_message_at?: string | null
+          organization_id?: string
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          unread_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          sender_id: string | null
+          sender_type: string
+          status: string | null
+          type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type: string
+          status?: string | null
+          type?: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type?: string
+          status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          plan: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          plan?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          plan?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          current_organization_id: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          current_organization_id?: string | null
+          full_name: string
+          id: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          current_organization_id?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_current_organization_id_fkey"
+            columns: ["current_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_org_id: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
