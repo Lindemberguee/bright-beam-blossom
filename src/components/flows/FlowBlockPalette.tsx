@@ -90,7 +90,7 @@ export function FlowBlockPalette({ onDragStart }: FlowBlockPaletteProps) {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <div className="w-64 border-r border-border/50 bg-card/30 backdrop-blur-sm flex flex-col">
+    <div className="w-64 h-full border-r border-border/50 bg-card/30 backdrop-blur-sm flex flex-col overflow-hidden">
       {/* Header */}
       <div className="p-3 border-b border-border/30">
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
