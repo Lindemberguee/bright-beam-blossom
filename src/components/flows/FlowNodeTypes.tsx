@@ -301,7 +301,7 @@ export function ValidationNode({ data, selected }: any) {
         badge={typeLabels[data.validationType] || undefined}
       />
       <NodeContent>
-        <p>{data.content || 'Validar dado recebido...'}</p>
+        {data.content ? <p>{data.content}</p> : <p className="italic text-muted-foreground/50">🔒 Selecione o tipo de validação (CPF, e-mail, telefone...)</p>}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
       <div className="flex justify-between mt-2.5 text-[9px] font-semibold">
