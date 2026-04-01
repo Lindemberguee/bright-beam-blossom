@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect, DragEvent } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   ReactFlow, Background, Controls, MiniMap,
   addEdge, useNodesState, useEdgesState,
@@ -71,7 +71,6 @@ function QuickBlockPicker({ position, onSelect, onClose }: { position: { x: numb
 
 export default function FlowEditor() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data: flow, isLoading: flowLoading } = useFlow(id);
   const { data: dbNodes, isLoading: nodesLoading } = useFlowNodes(id);
   const { data: dbEdges, isLoading: edgesLoading } = useFlowEdges(id);
@@ -88,21 +87,23 @@ export default function FlowEditor() {
   const [quickPicker, setQuickPicker] = useState<{ x: number; y: number; flowPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSavingRef = useRef(false);
+  const pendingSaveRef = useRef<{ snapshot: string; nodes: Node[]; edges: Edge[] } | null>(null);
   const hasChanges = useRef(false);
   const lastSavedRef = useRef<string>('');
 
   // Load from DB once
   if (!initialized && !isLoading && id) {
-    if (dbNodes && dbNodes.length > 0) {
-      setNodes(dbNodes);
-    }
-    if (dbEdges) {
-      setEdges(dbEdges);
-    }
+    const initialNodes = dbNodes && dbNodes.length > 0 ? dbNodes : defaultStartNodes;
+    const initialEdges = dbEdges || [];
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+    lastSavedRef.current = JSON.stringify({ nodes: initialNodes, edges: initialEdges });
     setInitialized(true);
   }
   if (!initialized && isNew) {
+    lastSavedRef.current = JSON.stringify({ nodes: defaultStartNodes, edges: [] });
     setInitialized(true);
   }
 
@@ -176,58 +177,99 @@ export default function FlowEditor() {
     onDelete: handleNodeDelete,
   }), [handleNodeAddBelow, handleNodeDuplicate, handleNodeDelete]);
 
-  const handleSave = useCallback(() => {
-    if (!id) return;
-    const snapshot = JSON.stringify({ nodes, edges });
-    if (snapshot === lastSavedRef.current) return;
-    saveFlow.mutate(
-      { flowId: id, nodes, edges, name: flow?.name },
-      {
-        onSuccess: () => {
-          lastSavedRef.current = snapshot;
-          hasChanges.current = false;
-        },
-      }
-    );
-  }, [id, nodes, edges, flow, saveFlow]);
+  const flushSaveQueue = useCallback(async () => {
+    if (!id || isSavingRef.current || !pendingSaveRef.current) return;
 
-  // Silent auto-save with 1.5s debounce
+    const pending = pendingSaveRef.current;
+    if (pending.snapshot === lastSavedRef.current) {
+      pendingSaveRef.current = null;
+      return;
+    }
+
+    pendingSaveRef.current = null;
+    isSavingRef.current = true;
+
+    try {
+      await saveFlow.mutateAsync({
+        flowId: id,
+        nodes: pending.nodes,
+        edges: pending.edges,
+        name: flow?.name,
+        silent: true,
+      });
+      lastSavedRef.current = pending.snapshot;
+      hasChanges.current = false;
+    } catch (_error) {
+      pendingSaveRef.current = pending;
+    } finally {
+      isSavingRef.current = false;
+      if (pendingSaveRef.current) {
+        void flushSaveQueue();
+      }
+    }
+  }, [id, saveFlow, flow?.name]);
+
+  const queueSave = useCallback((nextNodes: Node[], nextEdges: Edge[]) => {
+    if (!id) return;
+
+    const snapshot = JSON.stringify({ nodes: nextNodes, edges: nextEdges });
+    if (snapshot === lastSavedRef.current) return;
+
+    hasChanges.current = true;
+    pendingSaveRef.current = { snapshot, nodes: nextNodes, edges: nextEdges };
+
+    if (autoSaveDebounceRef.current) {
+      clearTimeout(autoSaveDebounceRef.current);
+    }
+    autoSaveDebounceRef.current = setTimeout(() => {
+      void flushSaveQueue();
+    }, 250);
+  }, [id, flushSaveQueue]);
+
+  // Auto-save almost real-time
   useEffect(() => {
     if (!initialized || !id) return;
-    const snapshot = JSON.stringify({ nodes, edges });
-    if (snapshot === lastSavedRef.current) return;
-    hasChanges.current = true;
-
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      handleSave();
-    }, 1500);
+    queueSave(nodes, edges);
 
     return () => {
-      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      if (autoSaveDebounceRef.current) {
+        clearTimeout(autoSaveDebounceRef.current);
+      }
     };
-  }, [nodes, edges, initialized, id, handleSave]);
+  }, [nodes, edges, initialized, id, queueSave]);
 
-  // Ctrl+S shortcut
+  // Ctrl+S shortcut (force flush)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        handleSave();
+        pendingSaveRef.current = {
+          snapshot: JSON.stringify({ nodes, edges }),
+          nodes,
+          edges,
+        };
+        void flushSaveQueue();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [handleSave]);
+  }, [nodes, edges, flushSaveQueue]);
 
-  // Save on blur (tab switch)
+  // Save on tab blur/visibility change
   useEffect(() => {
     const handler = () => {
-      if (hasChanges.current && id) handleSave();
+      if (document.visibilityState !== 'hidden' || !hasChanges.current) return;
+      pendingSaveRef.current = {
+        snapshot: JSON.stringify({ nodes, edges }),
+        nodes,
+        edges,
+      };
+      void flushSaveQueue();
     };
+
     document.addEventListener('visibilitychange', handler);
     return () => document.removeEventListener('visibilitychange', handler);
-  }, [handleSave, id]);
+  }, [nodes, edges, flushSaveQueue]);
 
   const handlePaneDoubleClick = useCallback((event: React.MouseEvent) => {
     if (!reactFlowInstance) return;
