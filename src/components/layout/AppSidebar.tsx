@@ -2,7 +2,7 @@ import { useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard, MessageSquare, Columns3, Users, GitBranch, Webhook,
   UsersRound, Megaphone, Plug, Settings, User, CreditCard, Shield,
-  Zap, ChevronDown,
+  Zap, ChevronDown, Flame,
 } from 'lucide-react';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
