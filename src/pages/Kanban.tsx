@@ -3,6 +3,7 @@ import {
   usePipelines, useCreatePipeline, usePipelineColumns, useCreateColumn,
   usePipelineCards, useCreateCard, useMoveCard, useDeleteCard,
 } from '@/hooks/useKanban';
+import { useAuth } from '@/contexts/AuthContext';
 import { KanbanColumn } from '@/components/kanban/KanbanColumn';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Plus, BarChart3, DollarSign, Layers } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Kanban() {
+  const { profile, loading: authLoading } = useAuth();
   const { data: pipelines = [], isLoading: loadingPipelines } = usePipelines();
   const createPipeline = useCreatePipeline();
   const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(null);
@@ -77,7 +79,7 @@ export default function Kanban() {
     });
   };
 
-  if (loadingPipelines) {
+  if (loadingPipelines || authLoading) {
     return <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] text-muted-foreground">Carregando...</div>;
   }
 
