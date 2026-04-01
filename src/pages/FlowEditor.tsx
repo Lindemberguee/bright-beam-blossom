@@ -282,25 +282,10 @@ export default function FlowEditor() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Save status indicator */}
-          <div className="flex items-center gap-1.5 text-[11px] mr-1">
-            {saveStatus === 'saved' && (
-              <span className="flex items-center gap-1 text-success"><Check className="h-3 w-3" /> Salvo</span>
-            )}
-            {saveStatus === 'saving' && (
-              <span className="flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Salvando...</span>
-            )}
-            {saveStatus === 'unsaved' && (
-              <span className="flex items-center gap-1 text-warning"><Circle className="h-2.5 w-2.5 fill-current" /> Não salvo</span>
-            )}
-          </div>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Undo className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Redo className="h-4 w-4" /></Button>
           <div className="h-6 w-px bg-border mx-1" />
           <Button variant="outline" size="sm" className="gap-2 h-8"><Play className="h-3.5 w-3.5" /> Testar</Button>
-          <Button size="sm" className="gap-2 h-8" onClick={handleSave} disabled={saveFlow.isPending || !id || saveStatus === 'saved'}>
-            <Save className="h-3.5 w-3.5" /> Salvar
-          </Button>
         </div>
       </div>
 
