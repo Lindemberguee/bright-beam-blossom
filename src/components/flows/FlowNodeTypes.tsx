@@ -457,7 +457,7 @@ export function DelayNode({ data, selected }: any) {
             <span className="text-xs text-muted-foreground">{unitLabels[data.delayUnit] || data.delayUnit || 'min'}</span>
           </div>
         ) : (
-          <p>{data.duration || 'Configurar tempo...'}</p>
+          <p className="italic text-muted-foreground/50">⏳ Defina a duração da espera...</p>
         )}
       </NodeContent>
     </NodeShell>
