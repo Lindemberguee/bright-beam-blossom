@@ -203,7 +203,11 @@ export function MenuNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-primary/30 hover:border-primary/50" sourceHandleColor="!bg-primary" selected={selected}>
       <NodeHeader icon={ListChecks} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge="Menu" />
       <NodeContent>
-        <p className="mb-2">{data.content || 'Menu interativo...'}</p>
+        {data.content ? (
+          <p className="mb-2">{data.content}</p>
+        ) : (
+          <p className="mb-2 italic text-muted-foreground/50">📋 Configure o texto e os botões do menu...</p>
+        )}
       </NodeContent>
       {data.buttons && (data.buttons as string[]).length > 0 && (
         <div className="space-y-1">
