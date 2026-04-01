@@ -2,7 +2,7 @@ import { useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard, MessageSquare, Columns3, Users, GitBranch, Webhook,
   UsersRound, Megaphone, Plug, Settings, User, CreditCard, Shield,
-  Zap, ChevronDown,
+  Zap, ChevronDown, Flame,
 } from 'lucide-react';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -17,6 +17,7 @@ const mainItems = [
   { title: 'Contatos', url: '/contacts', icon: Users },
   { title: 'Fluxos', url: '/flows', icon: GitBranch },
   { title: 'Campanhas', url: '/campaigns', icon: Megaphone },
+  { title: 'Aquecimento', url: '/warming', icon: Flame },
 ];
 
 const integrationItems = [

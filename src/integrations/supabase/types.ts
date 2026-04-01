@@ -556,6 +556,47 @@ export type Database = {
           },
         ]
       }
+      number_events: {
+        Row: {
+          created_at: string
+          details: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          number_id: string
+          severity: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          number_id: string
+          severity?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          number_id?: string
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "number_events_number_id_fkey"
+            columns: ["number_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_numbers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -798,6 +839,217 @@ export type Database = {
           {
             foreignKeyName: "profiles_current_organization_id_fkey"
             columns: ["current_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      warming_phases: {
+        Row: {
+          created_at: string
+          daily_limit: number
+          description: string | null
+          duration_days: number
+          hourly_limit: number
+          id: string
+          message_interval_seconds: number
+          min_response_rate: number | null
+          name: string
+          phase_number: number
+          plan_id: string
+          priority_contacts_only: boolean
+          target_stage: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit?: number
+          description?: string | null
+          duration_days?: number
+          hourly_limit?: number
+          id?: string
+          message_interval_seconds?: number
+          min_response_rate?: number | null
+          name: string
+          phase_number?: number
+          plan_id: string
+          priority_contacts_only?: boolean
+          target_stage?: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit?: number
+          description?: string | null
+          duration_days?: number
+          hourly_limit?: number
+          id?: string
+          message_interval_seconds?: number
+          min_response_rate?: number | null
+          name?: string
+          phase_number?: number
+          plan_id?: string
+          priority_contacts_only?: boolean
+          target_stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warming_phases_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "warming_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      warming_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          organization_id: string
+          total_duration_days: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          organization_id: string
+          total_duration_days?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          organization_id?: string
+          total_duration_days?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warming_plans_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_numbers: {
+        Row: {
+          active_plan_id: string | null
+          auto_pause_enabled: boolean
+          avg_response_time_seconds: number | null
+          connected_at: string | null
+          connection_status: string
+          created_at: string
+          current_daily_received: number
+          current_daily_responded: number
+          current_daily_sent: number
+          current_phase: number
+          daily_limit: number
+          health_score: number
+          hourly_limit: number
+          id: string
+          is_paused: boolean
+          last_activity_at: string | null
+          message_interval_seconds: number
+          metadata: Json | null
+          organization_id: string
+          pause_reason: string | null
+          phone: string
+          response_rate: number
+          send_window_end: string | null
+          send_window_start: string | null
+          session_name: string
+          stage: string
+          total_received: number
+          total_responded: number
+          total_sent: number
+          updated_at: string
+        }
+        Insert: {
+          active_plan_id?: string | null
+          auto_pause_enabled?: boolean
+          avg_response_time_seconds?: number | null
+          connected_at?: string | null
+          connection_status?: string
+          created_at?: string
+          current_daily_received?: number
+          current_daily_responded?: number
+          current_daily_sent?: number
+          current_phase?: number
+          daily_limit?: number
+          health_score?: number
+          hourly_limit?: number
+          id?: string
+          is_paused?: boolean
+          last_activity_at?: string | null
+          message_interval_seconds?: number
+          metadata?: Json | null
+          organization_id: string
+          pause_reason?: string | null
+          phone: string
+          response_rate?: number
+          send_window_end?: string | null
+          send_window_start?: string | null
+          session_name: string
+          stage?: string
+          total_received?: number
+          total_responded?: number
+          total_sent?: number
+          updated_at?: string
+        }
+        Update: {
+          active_plan_id?: string | null
+          auto_pause_enabled?: boolean
+          avg_response_time_seconds?: number | null
+          connected_at?: string | null
+          connection_status?: string
+          created_at?: string
+          current_daily_received?: number
+          current_daily_responded?: number
+          current_daily_sent?: number
+          current_phase?: number
+          daily_limit?: number
+          health_score?: number
+          hourly_limit?: number
+          id?: string
+          is_paused?: boolean
+          last_activity_at?: string | null
+          message_interval_seconds?: number
+          metadata?: Json | null
+          organization_id?: string
+          pause_reason?: string | null
+          phone?: string
+          response_rate?: number
+          send_window_end?: string | null
+          send_window_start?: string | null
+          session_name?: string
+          stage?: string
+          total_received?: number
+          total_responded?: number
+          total_sent?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_numbers_active_plan_id_fkey"
+            columns: ["active_plan_id"]
+            isOneToOne: false
+            referencedRelation: "warming_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_numbers_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
