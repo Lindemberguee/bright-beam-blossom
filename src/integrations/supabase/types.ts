@@ -151,6 +151,147 @@ export type Database = {
           },
         ]
       }
+      flow_edges: {
+        Row: {
+          animated: boolean | null
+          created_at: string
+          edge_id: string
+          flow_id: string
+          id: string
+          label: string | null
+          source_handle: string | null
+          source_node: string
+          target_node: string
+        }
+        Insert: {
+          animated?: boolean | null
+          created_at?: string
+          edge_id: string
+          flow_id: string
+          id?: string
+          label?: string | null
+          source_handle?: string | null
+          source_node: string
+          target_node: string
+        }
+        Update: {
+          animated?: boolean | null
+          created_at?: string
+          edge_id?: string
+          flow_id?: string
+          id?: string
+          label?: string | null
+          source_handle?: string | null
+          source_node?: string
+          target_node?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_edges_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_nodes: {
+        Row: {
+          created_at: string
+          data: Json
+          flow_id: string
+          id: string
+          node_id: string
+          position_x: number
+          position_y: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          flow_id: string
+          id?: string
+          node_id: string
+          position_x?: number
+          position_y?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          flow_id?: string
+          id?: string
+          node_id?: string
+          position_x?: number
+          position_y?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_nodes_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flows: {
+        Row: {
+          created_at: string
+          description: string | null
+          execution_count: number | null
+          folder: string | null
+          id: string
+          name: string
+          organization_id: string
+          settings: Json | null
+          status: string
+          success_rate: number | null
+          trigger_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          execution_count?: number | null
+          folder?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          settings?: Json | null
+          status?: string
+          success_rate?: number | null
+          trigger_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          execution_count?: number | null
+          folder?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          settings?: Json | null
+          status?: string
+          success_rate?: number | null
+          trigger_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flows_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
