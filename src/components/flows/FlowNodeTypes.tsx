@@ -415,7 +415,7 @@ export function WebhookNode({ data, selected }: any) {
             </div>
           </>
         ) : (
-          <p>Configurar webhook...</p>
+          <p className="italic text-muted-foreground/50">🔗 Informe a URL e o método do webhook...</p>
         )}
       </NodeContent>
     </NodeShell>
