@@ -152,11 +152,16 @@ export function StartNode({ data, selected }: any) {
 /* ── Message Nodes ───────────────────────────────────────────── */
 
 export function MessageNode({ data, selected }: any) {
+  const isEmpty = !data.content;
   return (
     <NodeShell className="bg-card border border-border hover:border-primary/40" selected={selected}>
       <NodeHeader icon={MessageSquare} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" />
       <NodeContent>
-        <p className="line-clamp-3">{data.content || 'Configurar mensagem...'}</p>
+        {isEmpty ? (
+          <p className="italic text-muted-foreground/50">✏️ Clique para escrever sua mensagem de texto, imagem ou arquivo...</p>
+        ) : (
+          <p className="line-clamp-3">{data.content}</p>
+        )}
       </NodeContent>
       {data.mediaType && data.mediaType !== 'none' && <MediaIndicator type={data.mediaType} />}
       {data.variable && <VariableBadge name={data.variable} />}
