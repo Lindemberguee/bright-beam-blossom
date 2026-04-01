@@ -45,7 +45,7 @@ export function FlowNodeConfigPanel({ node, onUpdate, onClose, onDelete }: FlowN
   const blockInfo = blockTypes.find((b) => b.type === node.type);
 
   return (
-    <div className="w-80 border-l border-border/50 bg-card/80 backdrop-blur-md flex flex-col animate-fade-in">
+    <div className="w-80 h-full border-l border-border/50 bg-card/80 backdrop-blur-md flex flex-col overflow-hidden animate-fade-in">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border/50">
         <div className="flex items-center justify-between mb-1">
