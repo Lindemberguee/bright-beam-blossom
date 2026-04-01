@@ -9,25 +9,24 @@ const sections = [
   {
     title: 'Comunicação',
     items: [
-      { icon: Tag, label: 'Etiquetas', description: 'Organize conversas e contatos com tags', url: '#' },
-      { icon: MessageSquare, label: 'Respostas Rápidas', description: 'Templates de mensagens para agilizar', url: '#' },
-      { icon: FileText, label: 'Templates', description: 'Modelos de mensagem aprovados', url: '#' },
+      { icon: Tag, label: 'Etiquetas', description: 'Organize conversas e contatos com tags', url: '/settings/tags' },
+      { icon: MessageSquare, label: 'Respostas Rápidas', description: 'Templates de mensagens para agilizar', url: '/settings/quick-replies' },
     ],
   },
   {
     title: 'Operação',
     items: [
-      { icon: Building2, label: 'Departamentos', description: 'Organize equipes por área', url: '#' },
-      { icon: Clock, label: 'Horários de Atendimento', description: 'Configure horários por canal', url: '#' },
-      { icon: Users, label: 'Filas de Atendimento', description: 'Regras de distribuição automática', url: '#' },
+      { icon: Building2, label: 'Departamentos', description: 'Organize equipes por área', url: '/settings/departments' },
+      { icon: Clock, label: 'Horários de Atendimento', description: 'Configure horários por canal', url: '/settings/business-hours' },
+      { icon: Users, label: 'Filas de Atendimento', description: 'Regras de distribuição automática', url: '/settings/queues' },
     ],
   },
   {
     title: 'Personalização',
     items: [
-      { icon: Variable, label: 'Variáveis Globais', description: 'Variáveis reutilizáveis em fluxos', url: '#' },
-      { icon: Palette, label: 'Branding', description: 'Logo, cores e identidade visual', url: '#' },
-      { icon: Globe, label: 'Idioma e Timezone', description: 'Configurações regionais', url: '#' },
+      { icon: Variable, label: 'Variáveis Globais', description: 'Variáveis reutilizáveis em fluxos', url: '/settings/variables' },
+      { icon: Palette, label: 'Branding', description: 'Logo, cores e identidade visual', url: '/settings/branding' },
+      { icon: Globe, label: 'Idioma e Timezone', description: 'Configurações regionais', url: '/settings/locale' },
     ],
   },
   {
@@ -41,8 +40,8 @@ const sections = [
   {
     title: 'Segurança',
     items: [
-      { icon: Shield, label: 'Permissões', description: 'Controle de acesso por papel', url: '#' },
-      { icon: SettingsIcon, label: 'Geral', description: 'Configurações gerais do workspace', url: '#' },
+      { icon: Shield, label: 'Permissões', description: 'Controle de acesso por papel', url: '/settings/permissions' },
+      { icon: SettingsIcon, label: 'Geral', description: 'Configurações gerais do workspace', url: '/settings/general' },
     ],
   },
 ];

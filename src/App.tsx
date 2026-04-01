@@ -24,6 +24,17 @@ import Profile from "./pages/Profile";
 import Billing from "./pages/Billing";
 import Audit from "./pages/Audit";
 import NotFound from "./pages/NotFound";
+// Settings sub-pages
+import SettingsTags from "./pages/settings/SettingsTags";
+import SettingsQuickReplies from "./pages/settings/SettingsQuickReplies";
+import SettingsDepartments from "./pages/settings/SettingsDepartments";
+import SettingsBusinessHours from "./pages/settings/SettingsBusinessHours";
+import SettingsQueues from "./pages/settings/SettingsQueues";
+import SettingsVariables from "./pages/settings/SettingsVariables";
+import SettingsBranding from "./pages/settings/SettingsBranding";
+import SettingsLocale from "./pages/settings/SettingsLocale";
+import SettingsPermissions from "./pages/settings/SettingsPermissions";
+import SettingsGeneral from "./pages/settings/SettingsGeneral";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +62,16 @@ const App = () => (
               <Route path="/webhooks" element={<Webhooks />} />
               <Route path="/team" element={<Team />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/tags" element={<SettingsTags />} />
+              <Route path="/settings/quick-replies" element={<SettingsQuickReplies />} />
+              <Route path="/settings/departments" element={<SettingsDepartments />} />
+              <Route path="/settings/business-hours" element={<SettingsBusinessHours />} />
+              <Route path="/settings/queues" element={<SettingsQueues />} />
+              <Route path="/settings/variables" element={<SettingsVariables />} />
+              <Route path="/settings/branding" element={<SettingsBranding />} />
+              <Route path="/settings/locale" element={<SettingsLocale />} />
+              <Route path="/settings/permissions" element={<SettingsPermissions />} />
+              <Route path="/settings/general" element={<SettingsGeneral />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/billing" element={<Billing />} />
               <Route path="/audit" element={<Audit />} />
