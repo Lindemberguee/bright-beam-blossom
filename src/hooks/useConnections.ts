@@ -91,9 +91,13 @@ export function useConnections() {
 
   const updateConnection = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Connection> & { id: string }) => {
+      const { session_data, metadata, ...rest } = updates;
+      const payload: Record<string, unknown> = { ...rest, updated_at: new Date().toISOString() };
+      if (session_data !== undefined) payload.session_data = session_data as unknown;
+      if (metadata !== undefined) payload.metadata = metadata as unknown;
       const { data, error } = await supabase
         .from('connections')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .update(payload)
         .eq('id', id)
         .select()
         .single();
