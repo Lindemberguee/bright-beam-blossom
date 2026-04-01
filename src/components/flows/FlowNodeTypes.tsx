@@ -1,10 +1,21 @@
+import { createContext, useContext } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import {
   MessageSquare, HelpCircle, GitBranch, Timer, Webhook, Tag,
   Brain, XCircle, Zap, User, Send, ListChecks, Image, FileText,
   MapPin, Globe, ShieldCheck, Repeat, Clock, Music, Video,
-  Variable, Sparkles,
+  Variable, Sparkles, Plus, Trash2, Copy,
 } from 'lucide-react';
+
+/* ── Node Actions Context ────────────────────────────────────── */
+
+export type NodeActionsContextType = {
+  onAddBelow?: (nodeId: string, position: { x: number; y: number }) => void;
+  onDuplicate?: (nodeId: string) => void;
+  onDelete?: (nodeId: string) => void;
+};
+
+export const NodeActionsContext = createContext<NodeActionsContextType>({});
 
 /* ── Shared Shell ────────────────────────────────────────────── */
 
