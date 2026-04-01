@@ -322,7 +322,7 @@ export function AINode({ data, selected }: any) {
     >
       <NodeHeader icon={Brain} label={data.label} iconBg="bg-primary/20" iconColor="text-primary" badge={data.model || 'IA'} />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Resposta inteligente com IA...'}</p>
+        {data.content ? <p className="line-clamp-2">{data.content}</p> : <p className="italic text-muted-foreground/50">🤖 Configure o prompt e o modelo de IA...</p>}
       </NodeContent>
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         {data.model && (
