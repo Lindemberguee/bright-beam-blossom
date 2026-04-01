@@ -348,7 +348,7 @@ export function TransferNode({ data, selected }: any) {
             <span className="bg-success/10 text-success text-[10px] font-medium px-2 py-0.5 rounded-md">{data.department}</span>
           </div>
         ) : (
-          <p>Selecionar destino...</p>
+          <p className="italic text-muted-foreground/50">👤 Selecione o departamento ou agente...</p>
         )}
       </NodeContent>
       {data.transferMessage && (
