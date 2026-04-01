@@ -1088,6 +1088,140 @@ export type Database = {
           },
         ]
       }
+      webhook_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          request_body: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          webhook_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          request_body?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          webhook_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          request_body?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhooks: {
+        Row: {
+          auth_token: string | null
+          auth_type: string
+          call_count: number
+          created_at: string
+          description: string | null
+          error_count: number
+          headers: Json | null
+          id: string
+          last_called_at: string | null
+          last_error_at: string | null
+          last_error_message: string | null
+          method: string
+          name: string
+          notes: string | null
+          organization_id: string
+          payload_mapping: Json | null
+          status: string
+          tags: string[] | null
+          trigger_flow_id: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          auth_token?: string | null
+          auth_type?: string
+          call_count?: number
+          created_at?: string
+          description?: string | null
+          error_count?: number
+          headers?: Json | null
+          id?: string
+          last_called_at?: string | null
+          last_error_at?: string | null
+          last_error_message?: string | null
+          method?: string
+          name: string
+          notes?: string | null
+          organization_id: string
+          payload_mapping?: Json | null
+          status?: string
+          tags?: string[] | null
+          trigger_flow_id?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          auth_token?: string | null
+          auth_type?: string
+          call_count?: number
+          created_at?: string
+          description?: string | null
+          error_count?: number
+          headers?: Json | null
+          id?: string
+          last_called_at?: string | null
+          last_error_at?: string | null
+          last_error_message?: string | null
+          method?: string
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          payload_mapping?: Json | null
+          status?: string
+          tags?: string[] | null
+          trigger_flow_id?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhooks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhooks_trigger_flow_id_fkey"
+            columns: ["trigger_flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_numbers: {
         Row: {
           active_plan_id: string | null
