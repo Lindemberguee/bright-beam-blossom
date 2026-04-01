@@ -17,6 +17,7 @@ const mainItems = [
   { title: 'Contatos', url: '/contacts', icon: Users },
   { title: 'Fluxos', url: '/flows', icon: GitBranch },
   { title: 'Campanhas', url: '/campaigns', icon: Megaphone },
+  { title: 'Aquecimento', url: '/warming', icon: Flame },
 ];
 
 const integrationItems = [

@@ -46,6 +46,7 @@ const App = () => (
               <Route path="/flows" element={<Flows />} />
               <Route path="/flows/editor/:id" element={<FlowEditor />} />
               <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/warming" element={<Warming />} />
               <Route path="/connections" element={<Connections />} />
               <Route path="/webhooks" element={<Webhooks />} />
               <Route path="/team" element={<Team />} />
