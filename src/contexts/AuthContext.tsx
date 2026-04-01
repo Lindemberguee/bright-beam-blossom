@@ -39,38 +39,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       if (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
         return;
       }
       setProfile(data);
     } catch (err) {
       console.error('Profile fetch failed:', err);
+      setProfile(null);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    const applySessionState = (nextSession: Session | null) => {
+      if (!mounted) return;
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+
+      if (nextSession?.user) {
+        // Avoid auth callback deadlock by not awaiting Supabase calls inside onAuthStateChange.
+        setTimeout(() => {
+          if (mounted) {
+            void fetchProfile(nextSession.user.id);
+          }
+        }, 0);
+      } else {
+        setProfile(null);
+      }
+
+      setLoading(false);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
+      (_event, nextSession) => {
+        applySessionState(nextSession);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (!mounted) return;
 
-    return () => subscription.unsubscribe();
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+
+        if (initialSession?.user) {
+          await fetchProfile(initialSession.user.id);
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error('Session initialization failed:', err);
+        if (mounted) setProfile(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    void initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
