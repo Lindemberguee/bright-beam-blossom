@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect, DragEvent } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   ReactFlow, Background, Controls, MiniMap,
   addEdge, useNodesState, useEdgesState,
