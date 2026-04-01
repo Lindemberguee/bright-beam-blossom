@@ -67,7 +67,7 @@ export function useCreatePipeline() {
 
   return useMutation({
     mutationFn: async (data: { name: string; description?: string }) => {
-      if (!profile?.current_organization_id) throw new Error('No org');
+      if (!profile?.current_organization_id) throw new Error('Organização não encontrada. Recarregue a página.');
       const { data: pipeline, error } = await supabase
         .from('pipelines')
         .insert({ ...data, organization_id: profile.current_organization_id })
