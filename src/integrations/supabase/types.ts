@@ -154,6 +154,152 @@ export type Database = {
           },
         ]
       }
+      connection_events: {
+        Row: {
+          connection_id: string
+          created_at: string
+          details: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          severity: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          details?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          severity?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          details?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          severity?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_events_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          account_name: string | null
+          assigned_flow_id: string | null
+          assigned_queue: string | null
+          assigned_team: string | null
+          available_for_attendance: boolean
+          available_for_campaigns: boolean
+          available_for_warming: boolean
+          avatar_url: string | null
+          channel_type: string
+          connected_at: string | null
+          created_at: string
+          health_score: number
+          id: string
+          identifier: string | null
+          last_activity_at: string | null
+          last_sync_at: string | null
+          metadata: Json | null
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          session_data: Json | null
+          session_name: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string | null
+          assigned_flow_id?: string | null
+          assigned_queue?: string | null
+          assigned_team?: string | null
+          available_for_attendance?: boolean
+          available_for_campaigns?: boolean
+          available_for_warming?: boolean
+          avatar_url?: string | null
+          channel_type?: string
+          connected_at?: string | null
+          created_at?: string
+          health_score?: number
+          id?: string
+          identifier?: string | null
+          last_activity_at?: string | null
+          last_sync_at?: string | null
+          metadata?: Json | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          session_data?: Json | null
+          session_name?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string | null
+          assigned_flow_id?: string | null
+          assigned_queue?: string | null
+          assigned_team?: string | null
+          available_for_attendance?: boolean
+          available_for_campaigns?: boolean
+          available_for_warming?: boolean
+          avatar_url?: string | null
+          channel_type?: string
+          connected_at?: string | null
+          created_at?: string
+          health_score?: number
+          id?: string
+          identifier?: string | null
+          last_activity_at?: string | null
+          last_sync_at?: string | null
+          metadata?: Json | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          session_data?: Json | null
+          session_name?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_assigned_flow_id_fkey"
+            columns: ["assigned_flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_list_members: {
         Row: {
           contact_id: string
