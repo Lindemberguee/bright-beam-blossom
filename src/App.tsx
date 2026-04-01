@@ -43,7 +43,7 @@ const App = () => (
               <Route path="/kanban" element={<Kanban />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/flows" element={<Flows />} />
-              <Route path="/flows/editor" element={<FlowEditor />} />
+              <Route path="/flows/editor/:id" element={<FlowEditor />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/connections" element={<Connections />} />
               <Route path="/webhooks" element={<Webhooks />} />
