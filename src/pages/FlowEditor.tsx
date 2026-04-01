@@ -180,33 +180,29 @@ export default function FlowEditor() {
   const handleSave = useCallback(() => {
     if (!id) return;
     const snapshot = JSON.stringify({ nodes, edges });
-    if (snapshot === lastSavedRef.current) return; // no real change
-    setSaveStatus('saving');
+    if (snapshot === lastSavedRef.current) return;
     saveFlow.mutate(
       { flowId: id, nodes, edges, name: flow?.name },
       {
         onSuccess: () => {
           lastSavedRef.current = snapshot;
-          setSaveStatus('saved');
           hasChanges.current = false;
         },
-        onError: () => setSaveStatus('unsaved'),
       }
     );
   }, [id, nodes, edges, flow, saveFlow]);
 
-  // Track changes for auto-save
+  // Silent auto-save with 1.5s debounce
   useEffect(() => {
     if (!initialized || !id) return;
     const snapshot = JSON.stringify({ nodes, edges });
     if (snapshot === lastSavedRef.current) return;
     hasChanges.current = true;
-    setSaveStatus('unsaved');
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
       handleSave();
-    }, 3000);
+    }, 1500);
 
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -231,12 +227,6 @@ export default function FlowEditor() {
       if (hasChanges.current && id) handleSave();
     };
     document.addEventListener('visibilitychange', handler);
-    window.addEventListener('beforeunload', (e) => {
-      if (hasChanges.current) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
     return () => document.removeEventListener('visibilitychange', handler);
   }, [handleSave, id]);
 
