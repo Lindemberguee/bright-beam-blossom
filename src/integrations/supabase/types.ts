@@ -14,6 +14,226 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_contacts: {
+        Row: {
+          campaign_id: string
+          contact_id: string
+          created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          failed_at: string | null
+          id: string
+          read_at: string | null
+          responded_at: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          contact_id: string
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          read_at?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          contact_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          read_at?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_contacts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          delivered_count: number | null
+          description: string | null
+          failed_count: number | null
+          filters: Json | null
+          id: string
+          media_type: string | null
+          media_url: string | null
+          message_template: string | null
+          message_variables: Json | null
+          name: string
+          organization_id: string
+          read_count: number | null
+          response_count: number | null
+          scheduled_at: string | null
+          sent_count: number | null
+          started_at: string | null
+          status: string
+          target_count: number | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          delivered_count?: number | null
+          description?: string | null
+          failed_count?: number | null
+          filters?: Json | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          message_template?: string | null
+          message_variables?: Json | null
+          name: string
+          organization_id: string
+          read_count?: number | null
+          response_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          target_count?: number | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          delivered_count?: number | null
+          description?: string | null
+          failed_count?: number | null
+          filters?: Json | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          message_template?: string | null
+          message_variables?: Json | null
+          name?: string
+          organization_id?: string
+          read_count?: number | null
+          response_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          target_count?: number | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_list_members: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          list_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          list_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          list_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_list_members_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "contact_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_lists: {
+        Row: {
+          contact_count: number | null
+          created_at: string
+          description: string | null
+          filters: Json
+          id: string
+          is_dynamic: boolean
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_dynamic?: boolean
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_dynamic?: boolean
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_lists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           assigned_to: string | null
