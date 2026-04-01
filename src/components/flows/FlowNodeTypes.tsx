@@ -4,7 +4,9 @@ import {
   MessageSquare, HelpCircle, GitBranch, Timer, Webhook, Tag,
   Brain, XCircle, Zap, User, Send, ListChecks, Image, FileText,
   MapPin, Globe, ShieldCheck, Repeat, Clock, Music, Video,
-  Variable, Sparkles, Plus, Trash2, Copy,
+  Variable, Sparkles, Plus, Trash2, Copy, CreditCard, Tags,
+  Pause, Headphones, Bell, Shuffle, Link2, Crosshair, Hourglass,
+  Building2, Plug, KanbanSquare,
 } from 'lucide-react';
 
 /* ── Node Actions Context ────────────────────────────────────── */
