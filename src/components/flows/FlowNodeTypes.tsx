@@ -435,7 +435,7 @@ export function HttpNode({ data, selected }: any) {
             <span className="truncate max-w-[150px] font-mono text-[10px]">{data.url}</span>
           </div>
         ) : (
-          <p>Configurar requisição HTTP...</p>
+          <p className="italic text-muted-foreground/50">🌐 Configure URL, método, headers e body...</p>
         )}
       </NodeContent>
       {data.variable && <VariableBadge name={data.variable} />}
