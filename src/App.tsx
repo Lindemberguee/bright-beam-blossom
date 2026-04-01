@@ -15,6 +15,7 @@ import Contacts from "./pages/Contacts";
 import Flows from "./pages/Flows";
 import FlowEditor from "./pages/FlowEditor";
 import Campaigns from "./pages/Campaigns";
+import Warming from "./pages/Warming";
 import Connections from "./pages/Connections";
 import Webhooks from "./pages/Webhooks";
 import Team from "./pages/Team";
