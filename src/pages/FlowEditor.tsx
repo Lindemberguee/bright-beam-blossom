@@ -9,7 +9,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { flowNodeTypes } from '@/components/flows/FlowNodeTypes';
+import { flowNodeTypes, NodeActionsContext } from '@/components/flows/FlowNodeTypes';
 import { FlowBlockPalette, blockTypes, blockCategories } from '@/components/flows/FlowBlockPalette';
 import { FlowNodeConfigPanel } from '@/components/flows/FlowNodeConfigPanel';
 import { useFlow, useFlowNodes, useFlowEdges, useSaveFlow } from '@/hooks/useFlows';
@@ -144,6 +144,35 @@ export default function FlowEditor() {
     setSelectedNode(null);
   }, [setNodes, setEdges]);
 
+  const handleNodeAddBelow = useCallback((nodeId: string, position: { x: number; y: number }) => {
+    setQuickPicker({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      flowPos: { x: position.x, y: position.y + 150 },
+    });
+  }, []);
+
+  const handleNodeDuplicate = useCallback((nodeId: string) => {
+    setNodes((nds) => {
+      const original = nds.find((n) => n.id === nodeId);
+      if (!original) return nds;
+      const newNode: Node = {
+        ...original,
+        id: `${original.type}-${Date.now()}`,
+        position: { x: original.position.x + 30, y: original.position.y + 60 },
+        data: { ...original.data as Record<string, any> },
+        selected: false,
+      };
+      return nds.concat(newNode);
+    });
+  }, [setNodes]);
+
+  const nodeActionsValue = useMemo(() => ({
+    onAddBelow: handleNodeAddBelow,
+    onDuplicate: handleNodeDuplicate,
+    onDelete: handleNodeDelete,
+  }), [handleNodeAddBelow, handleNodeDuplicate, handleNodeDelete]);
+
   const handleSave = useCallback(() => {
     if (!id) return;
     saveFlow.mutate({ flowId: id, nodes, edges, name: flow?.name });
@@ -215,31 +244,33 @@ export default function FlowEditor() {
         {showPalette && <FlowBlockPalette onDragStart={() => {}} />}
 
         <div className="flex-1" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onNodeClick={handleNodeClick}
-            onPaneClick={() => { setSelectedNode(null); setQuickPicker(null); }}
-            onDoubleClick={handlePaneDoubleClick}
-            nodeTypes={memoizedNodeTypes}
-            fitView
-            defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'hsl(263, 70%, 58%)' } }}
-          >
-            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="hsl(225, 15%, 15%)" />
-            <Controls className="!bg-card !border-border !rounded-lg !shadow-lg" />
-            <MiniMap
-              nodeStrokeColor="hsl(263, 70%, 58%)"
-              nodeColor="hsl(225, 25%, 14%)"
-              maskColor="hsla(225, 25%, 8%, 0.8)"
-              className="!rounded-lg"
-            />
-          </ReactFlow>
+          <NodeActionsContext.Provider value={nodeActionsValue}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onInit={setReactFlowInstance}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onNodeClick={handleNodeClick}
+              onPaneClick={() => { setSelectedNode(null); setQuickPicker(null); }}
+              onDoubleClick={handlePaneDoubleClick}
+              nodeTypes={memoizedNodeTypes}
+              fitView
+              defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'hsl(263, 70%, 58%)' } }}
+            >
+              <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="hsl(225, 15%, 15%)" />
+              <Controls className="!bg-card !border-border !rounded-lg !shadow-lg" />
+              <MiniMap
+                nodeStrokeColor="hsl(263, 70%, 58%)"
+                nodeColor="hsl(225, 25%, 14%)"
+                maskColor="hsla(225, 25%, 8%, 0.8)"
+                className="!rounded-lg"
+              />
+            </ReactFlow>
+          </NodeActionsContext.Provider>
         </div>
 
         {selectedNode && (

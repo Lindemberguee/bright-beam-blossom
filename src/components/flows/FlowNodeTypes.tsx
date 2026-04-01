@@ -1,10 +1,21 @@
+import { createContext, useContext } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import {
   MessageSquare, HelpCircle, GitBranch, Timer, Webhook, Tag,
   Brain, XCircle, Zap, User, Send, ListChecks, Image, FileText,
   MapPin, Globe, ShieldCheck, Repeat, Clock, Music, Video,
-  Variable, Sparkles,
+  Variable, Sparkles, Plus, Trash2, Copy,
 } from 'lucide-react';
+
+/* ── Node Actions Context ────────────────────────────────────── */
+
+export type NodeActionsContextType = {
+  onAddBelow?: (nodeId: string, position: { x: number; y: number }) => void;
+  onDuplicate?: (nodeId: string) => void;
+  onDelete?: (nodeId: string) => void;
+};
+
+export const NodeActionsContext = createContext<NodeActionsContextType>({});
 
 /* ── Shared Shell ────────────────────────────────────────────── */
 
@@ -17,6 +28,8 @@ function NodeShell({
   hasSource = true,
   sourceHandles,
   selected,
+  nodeId,
+  nodePosition,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -26,42 +39,74 @@ function NodeShell({
   hasSource?: boolean;
   sourceHandles?: { id: string; position: string; color: string }[];
   selected?: boolean;
+  nodeId?: string;
+  nodePosition?: { x: number; y: number };
 }) {
+  const actions = useContext(NodeActionsContext);
+
   return (
-    <div
-      className={`
-        rounded-xl px-4 py-3 min-w-[210px] max-w-[260px] shadow-lg
-        transition-all duration-200 hover:shadow-xl
-        ${selected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
-        ${className}
-      `}
-    >
-      {hasTarget && (
-        <Handle
-          type="target"
-          position={Position.Top}
-          className={`${targetHandleColor} !w-3 !h-3 !border-2 !border-background !-top-1.5 transition-transform hover:!scale-125`}
-        />
+    <div className="relative group">
+      {/* Floating action toolbar */}
+      {selected && nodeId && (
+        <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-10 flex items-center gap-0.5 bg-card border border-border rounded-lg shadow-xl px-1 py-0.5 animate-fade-in">
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onAddBelow?.(nodeId, nodePosition || { x: 0, y: 0 }); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-success hover:bg-success/10 transition-colors"
+            title="Adicionar bloco abaixo"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onDuplicate?.(nodeId); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+            title="Duplicar bloco"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onDelete?.(nodeId); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            title="Excluir bloco"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       )}
-      {children}
-      {sourceHandles
-        ? sourceHandles.map((h) => (
-            <Handle
-              key={h.id}
-              type="source"
-              position={Position.Bottom}
-              id={h.id}
-              style={{ left: h.position }}
-              className={`${h.color} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
-            />
-          ))
-        : hasSource && (
-            <Handle
-              type="source"
-              position={Position.Bottom}
-              className={`${sourceHandleColor} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
-            />
-          )}
+      <div
+        className={`
+          rounded-xl px-4 py-3 min-w-[210px] max-w-[260px] shadow-lg
+          transition-all duration-200 hover:shadow-xl
+          ${selected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+          ${className}
+        `}
+      >
+        {hasTarget && (
+          <Handle
+            type="target"
+            position={Position.Top}
+            className={`${targetHandleColor} !w-3 !h-3 !border-2 !border-background !-top-1.5 transition-transform hover:!scale-125`}
+          />
+        )}
+        {children}
+        {sourceHandles
+          ? sourceHandles.map((h) => (
+              <Handle
+                key={h.id}
+                type="source"
+                position={Position.Bottom}
+                id={h.id}
+                style={{ left: h.position }}
+                className={`${h.color} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
+              />
+            ))
+          : hasSource && (
+              <Handle
+                type="source"
+                position={Position.Bottom}
+                className={`${sourceHandleColor} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
+              />
+            )}
+      </div>
     </div>
   );
 }
@@ -121,7 +166,7 @@ function MediaIndicator({ type }: { type: string }) {
 
 /* ── Trigger Nodes ───────────────────────────────────────────── */
 
-export function StartNode({ data, selected }: any) {
+export function StartNode({ id, data, selected }: any) {
   const triggerLabels: Record<string, string> = {
     message_received: '📩 Mensagem recebida',
     keyword: '🔑 Palavra-chave',
@@ -130,7 +175,7 @@ export function StartNode({ data, selected }: any) {
     new_contact: '👤 Novo contato',
   };
   return (
-    <NodeShell className="bg-success/15 border-2 border-success/60 backdrop-blur-sm" hasTarget={false} sourceHandleColor="!bg-success" selected={selected}>
+    <NodeShell nodeId={id} className="bg-success/15 border-2 border-success/60 backdrop-blur-sm" hasTarget={false} sourceHandleColor="!bg-success" selected={selected}>
       <div className="flex items-center gap-2 justify-center">
         <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center">
           <Zap className="h-4 w-4 text-success" />
@@ -151,10 +196,10 @@ export function StartNode({ data, selected }: any) {
 
 /* ── Message Nodes ───────────────────────────────────────────── */
 
-export function MessageNode({ data, selected }: any) {
+export function MessageNode({ id, data, selected }: any) {
   const isEmpty = !data.content;
   return (
-    <NodeShell className="bg-card border border-border hover:border-primary/40" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-primary/40" selected={selected}>
       <NodeHeader icon={MessageSquare} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" />
       <NodeContent>
         {isEmpty ? (
@@ -169,12 +214,12 @@ export function MessageNode({ data, selected }: any) {
   );
 }
 
-export function QuestionNode({ data, selected }: any) {
+export function QuestionNode({ id, data, selected }: any) {
   const responseLabels: Record<string, string> = {
     text: 'Texto', number: 'Número', email: 'E-mail', phone: 'Telefone', cpf: 'CPF', date: 'Data',
   };
   return (
-    <NodeShell className="bg-card border border-info/40 hover:border-info/60" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-info/40 hover:border-info/60" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={HelpCircle} label={data.label} iconBg="bg-info/15" iconColor="text-info" badge={responseLabels[data.responseType] || undefined} />
       <NodeContent>
         {data.content ? (
@@ -198,9 +243,9 @@ export function QuestionNode({ data, selected }: any) {
   );
 }
 
-export function MenuNode({ data, selected }: any) {
+export function MenuNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-primary/30 hover:border-primary/50" sourceHandleColor="!bg-primary" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-primary/30 hover:border-primary/50" sourceHandleColor="!bg-primary" selected={selected}>
       <NodeHeader icon={ListChecks} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge="Menu" />
       <NodeContent>
         {data.content ? (
@@ -225,9 +270,9 @@ export function MenuNode({ data, selected }: any) {
   );
 }
 
-export function LocationNode({ data, selected }: any) {
+export function LocationNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-destructive/30 hover:border-destructive/50" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-destructive/30 hover:border-destructive/50" selected={selected}>
       <NodeHeader icon={MapPin} label={data.label} iconBg="bg-destructive/10" iconColor="text-destructive" />
       <NodeContent>
         {data.content ? (
@@ -243,12 +288,12 @@ export function LocationNode({ data, selected }: any) {
 
 /* ── Logic Nodes ─────────────────────────────────────────────── */
 
-export function ConditionNode({ data, selected }: any) {
+export function ConditionNode({ id, data, selected }: any) {
   const opLabels: Record<string, string> = {
     equals: '=', contains: '⊃', starts_with: 'A...', gt: '>', lt: '<', exists: '∃', regex: '/./',
   };
   return (
-    <NodeShell
+    <NodeShell nodeId={id}
       className="bg-card border border-warning/40 hover:border-warning/60"
       targetHandleColor="!bg-warning"
       hasSource={false}
@@ -278,12 +323,12 @@ export function ConditionNode({ data, selected }: any) {
   );
 }
 
-export function ValidationNode({ data, selected }: any) {
+export function ValidationNode({ id, data, selected }: any) {
   const typeLabels: Record<string, string> = {
     email: 'E-mail', cpf: 'CPF', cnpj: 'CNPJ', phone: 'Telefone', number: 'Número', date: 'Data', custom: 'Regex',
   };
   return (
-    <NodeShell
+    <NodeShell nodeId={id}
       className="bg-card border border-info/40 hover:border-info/60"
       targetHandleColor="!bg-info"
       hasSource={false}
@@ -314,9 +359,9 @@ export function ValidationNode({ data, selected }: any) {
 
 /* ── Action Nodes ────────────────────────────────────────────── */
 
-export function AINode({ data, selected }: any) {
+export function AINode({ id, data, selected }: any) {
   return (
-    <NodeShell
+    <NodeShell nodeId={id}
       className="bg-card border border-primary/50 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.2)] hover:shadow-[0_0_25px_-5px_hsl(var(--primary)/0.3)]"
       selected={selected}
     >
@@ -338,9 +383,9 @@ export function AINode({ data, selected }: any) {
   );
 }
 
-export function TransferNode({ data, selected }: any) {
+export function TransferNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-success/40 hover:border-success/60" targetHandleColor="!bg-success" sourceHandleColor="!bg-success" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-success/40 hover:border-success/60" targetHandleColor="!bg-success" sourceHandleColor="!bg-success" selected={selected}>
       <NodeHeader icon={User} label={data.label} iconBg="bg-success/15" iconColor="text-success" />
       <NodeContent>
         {data.department ? (
@@ -358,14 +403,14 @@ export function TransferNode({ data, selected }: any) {
   );
 }
 
-export function ActionNode({ data, selected }: any) {
+export function ActionNode({ id, data, selected }: any) {
   const actionLabels: Record<string, string> = {
     add_tag: '🏷 Adicionar tag', remove_tag: '🗑 Remover tag',
     set_variable: '📝 Definir variável', update_contact: '👤 Atualizar contato',
     move_pipeline: '📊 Mover no pipeline', close_conversation: '🔒 Fechar conversa',
   };
   return (
-    <NodeShell className="bg-card border border-border hover:border-primary/40" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-primary/40" selected={selected}>
       <NodeHeader icon={Tag} label={data.label} iconBg="bg-primary/10" iconColor="text-primary" />
       <NodeContent>
         {data.actionType ? (
@@ -386,9 +431,9 @@ export function ActionNode({ data, selected }: any) {
   );
 }
 
-export function SendNode({ data, selected }: any) {
+export function SendNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-info/30 hover:border-info/50" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-info/30 hover:border-info/50" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={Send} label={data.label} iconBg="bg-info/15" iconColor="text-info" />
       <NodeContent>
         {data.content ? <p className="line-clamp-2">{data.content}</p> : <p className="italic text-muted-foreground/50">📤 Configure a mensagem ou notificação a disparar...</p>}
@@ -400,9 +445,9 @@ export function SendNode({ data, selected }: any) {
 
 /* ── Integration Nodes ───────────────────────────────────────── */
 
-export function WebhookNode({ data, selected }: any) {
+export function WebhookNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-border hover:border-primary/40" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-primary/40" selected={selected}>
       <NodeHeader icon={Webhook} label={data.label} iconBg="bg-primary/10" iconColor="text-primary" />
       <NodeContent>
         {data.url ? (
@@ -422,9 +467,9 @@ export function WebhookNode({ data, selected }: any) {
   );
 }
 
-export function HttpNode({ data, selected }: any) {
+export function HttpNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-border hover:border-accent-foreground/40" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-accent-foreground/40" selected={selected}>
       <NodeHeader icon={Globe} label={data.label} iconBg="bg-accent" iconColor="text-accent-foreground" />
       <NodeContent>
         {data.url ? (
@@ -445,10 +490,10 @@ export function HttpNode({ data, selected }: any) {
 
 /* ── Flow Control Nodes ──────────────────────────────────────── */
 
-export function DelayNode({ data, selected }: any) {
+export function DelayNode({ id, data, selected }: any) {
   const unitLabels: Record<string, string> = { seconds: 'seg', minutes: 'min', hours: 'h', days: 'd' };
   return (
-    <NodeShell className="bg-card border border-border hover:border-muted-foreground/40" targetHandleColor="!bg-muted-foreground" sourceHandleColor="!bg-muted-foreground" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-muted-foreground/40" targetHandleColor="!bg-muted-foreground" sourceHandleColor="!bg-muted-foreground" selected={selected}>
       <NodeHeader icon={Timer} label={data.label} iconBg="bg-muted" iconColor="text-muted-foreground" />
       <NodeContent>
         {data.delayValue ? (
@@ -464,9 +509,9 @@ export function DelayNode({ data, selected }: any) {
   );
 }
 
-export function ScheduleNode({ data, selected }: any) {
+export function ScheduleNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-border hover:border-accent-foreground/40" targetHandleColor="!bg-accent-foreground" sourceHandleColor="!bg-accent-foreground" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-border hover:border-accent-foreground/40" targetHandleColor="!bg-accent-foreground" sourceHandleColor="!bg-accent-foreground" selected={selected}>
       <NodeHeader icon={Clock} label={data.label} iconBg="bg-accent" iconColor="text-accent-foreground" />
       <NodeContent>
         {data.scheduleTime ? (
@@ -482,9 +527,9 @@ export function ScheduleNode({ data, selected }: any) {
   );
 }
 
-export function LoopNode({ data, selected }: any) {
+export function LoopNode({ id, data, selected }: any) {
   return (
-    <NodeShell className="bg-card border border-warning/30 hover:border-warning/50" targetHandleColor="!bg-warning" sourceHandleColor="!bg-warning" selected={selected}>
+    <NodeShell nodeId={id} className="bg-card border border-warning/30 hover:border-warning/50" targetHandleColor="!bg-warning" sourceHandleColor="!bg-warning" selected={selected}>
       <NodeHeader icon={Repeat} label={data.label} iconBg="bg-warning/10" iconColor="text-warning" />
       <NodeContent>
         {data.maxIterations ? (
@@ -503,12 +548,12 @@ export function LoopNode({ data, selected }: any) {
   );
 }
 
-export function EndNode({ data, selected }: any) {
+export function EndNode({ id, data, selected }: any) {
   const reasonLabels: Record<string, string> = {
     resolved: '✅ Resolvido', closed: '🔒 Fechado', timeout: '⏰ Timeout', transferred: '➡️ Transferido',
   };
   return (
-    <NodeShell className="bg-destructive/15 border-2 border-destructive/50" hasSource={false} targetHandleColor="!bg-destructive" selected={selected}>
+    <NodeShell nodeId={id} className="bg-destructive/15 border-2 border-destructive/50" hasSource={false} targetHandleColor="!bg-destructive" selected={selected}>
       <div className="flex items-center gap-2 justify-center">
         <div className="h-8 w-8 rounded-full bg-destructive/20 flex items-center justify-center">
           <XCircle className="h-4 w-4 text-destructive" />
