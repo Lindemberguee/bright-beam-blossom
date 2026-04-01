@@ -128,7 +128,7 @@ export function useCreateFlow() {
 export function useSaveFlow() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ flowId, nodes, edges, name, status }: { flowId: string; nodes: Node[]; edges: Edge[]; name?: string; status?: string }) => {
+    mutationFn: async ({ flowId, nodes, edges, name, status }: { flowId: string; nodes: Node[]; edges: Edge[]; name?: string; status?: string; silent?: boolean }) => {
       // Update flow metadata
       const updates: any = { updated_at: new Date().toISOString() };
       if (name) updates.name = name;
@@ -171,9 +171,11 @@ export function useSaveFlow() {
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ['flows'] });
       qc.invalidateQueries({ queryKey: ['flow', vars.flowId] });
-      toast.success('Fluxo salvo!');
+      if (!vars.silent) toast.success('Fluxo salvo!');
     },
-    onError: () => toast.error('Erro ao salvar fluxo'),
+    onError: (_error, vars) => {
+      if (!vars?.silent) toast.error('Erro ao salvar fluxo');
+    },
   });
 }
 
