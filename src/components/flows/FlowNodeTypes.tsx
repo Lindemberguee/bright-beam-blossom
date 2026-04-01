@@ -371,7 +371,7 @@ export function ActionNode({ data, selected }: any) {
         {data.actionType ? (
           <span className="text-[10px] font-medium">{actionLabels[data.actionType] || data.actionType}</span>
         ) : (
-          <p>Configurar ação...</p>
+          <p className="italic text-muted-foreground/50">🎯 Escolha uma ação: tag, variável, CRM...</p>
         )}
         {data.actionType === 'add_tag' && data.tagValue && (
           <div className="mt-1.5">
