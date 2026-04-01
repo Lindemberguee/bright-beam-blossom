@@ -144,6 +144,35 @@ export default function FlowEditor() {
     setSelectedNode(null);
   }, [setNodes, setEdges]);
 
+  const handleNodeAddBelow = useCallback((nodeId: string, position: { x: number; y: number }) => {
+    setQuickPicker({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      flowPos: { x: position.x, y: position.y + 150 },
+    });
+  }, []);
+
+  const handleNodeDuplicate = useCallback((nodeId: string) => {
+    setNodes((nds) => {
+      const original = nds.find((n) => n.id === nodeId);
+      if (!original) return nds;
+      const newNode: Node = {
+        ...original,
+        id: `${original.type}-${Date.now()}`,
+        position: { x: original.position.x + 30, y: original.position.y + 60 },
+        data: { ...original.data as Record<string, any> },
+        selected: false,
+      };
+      return nds.concat(newNode);
+    });
+  }, [setNodes]);
+
+  const nodeActionsValue = useMemo(() => ({
+    onAddBelow: handleNodeAddBelow,
+    onDuplicate: handleNodeDuplicate,
+    onDelete: handleNodeDelete,
+  }), [handleNodeAddBelow, handleNodeDuplicate, handleNodeDelete]);
+
   const handleSave = useCallback(() => {
     if (!id) return;
     saveFlow.mutate({ flowId: id, nodes, edges, name: flow?.name });
