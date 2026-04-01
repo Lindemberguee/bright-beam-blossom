@@ -475,7 +475,7 @@ export function ScheduleNode({ data, selected }: any) {
             {data.scheduleDays && <span className="text-[9px] text-muted-foreground">{data.scheduleDays}</span>}
           </div>
         ) : (
-          <p>{data.content || 'Agendar horário...'}</p>
+          <p className="italic text-muted-foreground/50">🕐 Defina o horário e os dias do agendamento...</p>
         )}
       </NodeContent>
     </NodeShell>
