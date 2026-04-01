@@ -88,7 +88,7 @@ export default function FlowEditor() {
   const [quickPicker, setQuickPicker] = useState<{ x: number; y: number; flowPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasChanges = useRef(false);
   const lastSavedRef = useRef<string>('');
