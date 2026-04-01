@@ -8,16 +8,66 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Play, Undo, Redo } from 'lucide-react';
+import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { flowNodeTypes } from '@/components/flows/FlowNodeTypes';
-import { FlowBlockPalette } from '@/components/flows/FlowBlockPalette';
+import { FlowBlockPalette, blockTypes, blockCategories } from '@/components/flows/FlowBlockPalette';
 import { FlowNodeConfigPanel } from '@/components/flows/FlowNodeConfigPanel';
 import { useFlow, useFlowNodes, useFlowEdges, useSaveFlow } from '@/hooks/useFlows';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 const defaultStartNodes: Node[] = [
   { id: 'start-1', type: 'start', position: { x: 300, y: 50 }, data: { label: 'Início', triggerType: 'message_received' } },
 ];
+
+function QuickBlockPicker({ position, onSelect, onClose }: { position: { x: number; y: number }; onSelect: (type: string, label: string) => void; onClose: () => void }) {
+  const [search, setSearch] = useState('');
+  const filtered = blockTypes.filter(b => b.label.toLowerCase().includes(search.toLowerCase()) || b.description.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div
+      className="fixed z-50 w-72 max-h-80 bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-fade-in"
+      style={{ left: position.x, top: position.y }}
+    >
+      <div className="p-2 border-b border-border/50">
+        <input
+          autoFocus
+          placeholder="Buscar bloco..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full h-8 px-3 text-xs bg-muted/50 border border-border/50 rounded-lg outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
+          onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        />
+      </div>
+      <div className="overflow-auto max-h-64 p-1">
+        {blockCategories.map(cat => {
+          const blocks = filtered.filter(b => b.category === cat.id);
+          if (!blocks.length) return null;
+          return (
+            <div key={cat.id}>
+              <p className="px-2 py-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{cat.emoji} {cat.label}</p>
+              {blocks.map(block => (
+                <button
+                  key={block.type}
+                  onClick={() => { onSelect(block.type, block.label); onClose(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                >
+                  <block.icon className={cn('h-4 w-4 shrink-0', block.color)} />
+                  <div className="text-left min-w-0">
+                    <span className="block font-medium truncate">{block.label}</span>
+                    <span className="block text-[10px] text-muted-foreground/50 truncate">{block.description}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">Nenhum bloco encontrado</p>}
+      </div>
+    </div>
+  );
+}
 
 export default function FlowEditor() {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +84,8 @@ export default function FlowEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultStartNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [showPalette, setShowPalette] = useState(true);
+  const [quickPicker, setQuickPicker] = useState<{ x: number; y: number; flowPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
@@ -97,6 +149,24 @@ export default function FlowEditor() {
     saveFlow.mutate({ flowId: id, nodes, edges, name: flow?.name });
   }, [id, nodes, edges, flow, saveFlow]);
 
+  const handlePaneDoubleClick = useCallback((event: React.MouseEvent) => {
+    if (!reactFlowInstance) return;
+    const flowPos = reactFlowInstance.screenToFlowPosition({ x: event.clientX, y: event.clientY });
+    setQuickPicker({ x: event.clientX, y: event.clientY, flowPos });
+  }, [reactFlowInstance]);
+
+  const handleQuickBlockSelect = useCallback((type: string, label: string) => {
+    if (!quickPicker) return;
+    const newNode: Node = {
+      id: `${type}-${Date.now()}`,
+      type,
+      position: quickPicker.flowPos,
+      data: { label },
+    };
+    setNodes((nds) => nds.concat(newNode));
+    setQuickPicker(null);
+  }, [quickPicker, setNodes]);
+
   if (isLoading && id) {
     return (
       <div className="h-[calc(100vh-3.5rem)] flex items-center justify-center">
@@ -113,6 +183,15 @@ export default function FlowEditor() {
           <Link to="/flows">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={() => setShowPalette(!showPalette)}
+            title={showPalette ? 'Esconder painel de blocos' : 'Mostrar painel de blocos'}
+          >
+            {showPalette ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+          </Button>
           <div>
             <h2 className="text-sm font-semibold text-foreground">{flow?.name || 'Novo Fluxo'}</h2>
             <p className="text-[10px] text-muted-foreground">
@@ -133,7 +212,7 @@ export default function FlowEditor() {
       </div>
 
       <div className="flex-1 flex">
-        <FlowBlockPalette onDragStart={() => {}} />
+        {showPalette && <FlowBlockPalette onDragStart={() => {}} />}
 
         <div className="flex-1" ref={reactFlowWrapper}>
           <ReactFlow
@@ -146,7 +225,8 @@ export default function FlowEditor() {
             onDrop={onDrop}
             onDragOver={onDragOver}
             onNodeClick={handleNodeClick}
-            onPaneClick={() => setSelectedNode(null)}
+            onPaneClick={() => { setSelectedNode(null); setQuickPicker(null); }}
+            onDoubleClick={handlePaneDoubleClick}
             nodeTypes={memoizedNodeTypes}
             fitView
             defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'hsl(263, 70%, 58%)' } }}
@@ -171,6 +251,18 @@ export default function FlowEditor() {
           />
         )}
       </div>
+
+      {/* Quick Block Picker on double-click */}
+      {quickPicker && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setQuickPicker(null)} />
+          <QuickBlockPicker
+            position={{ x: quickPicker.x, y: quickPicker.y }}
+            onSelect={handleQuickBlockSelect}
+            onClose={() => setQuickPicker(null)}
+          />
+        </>
+      )}
     </div>
   );
 }
