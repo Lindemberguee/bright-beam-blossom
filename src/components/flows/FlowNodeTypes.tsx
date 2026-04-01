@@ -177,7 +177,11 @@ export function QuestionNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-info/40 hover:border-info/60" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={HelpCircle} label={data.label} iconBg="bg-info/15" iconColor="text-info" badge={responseLabels[data.responseType] || undefined} />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Configurar pergunta...'}</p>
+        {data.content ? (
+          <p className="line-clamp-2">{data.content}</p>
+        ) : (
+          <p className="italic text-muted-foreground/50">❓ Defina a pergunta e o tipo de resposta esperada...</p>
+        )}
       </NodeContent>
       {data.options && (
         <div className="mt-2 space-y-1">
