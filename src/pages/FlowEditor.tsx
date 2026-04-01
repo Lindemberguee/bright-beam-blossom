@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useRef, DragEvent } from 'react';
+import { useCallback, useMemo, useState, useRef, useEffect, DragEvent } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   ReactFlow, Background, Controls, MiniMap,
@@ -8,7 +8,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen, Check, Loader2, Circle } from 'lucide-react';
 import { flowNodeTypes, NodeActionsContext } from '@/components/flows/FlowNodeTypes';
 import { FlowBlockPalette, blockTypes, blockCategories } from '@/components/flows/FlowBlockPalette';
 import { FlowNodeConfigPanel } from '@/components/flows/FlowNodeConfigPanel';
@@ -88,6 +88,10 @@ export default function FlowEditor() {
   const [quickPicker, setQuickPicker] = useState<{ x: number; y: number; flowPos: { x: number; y: number } } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasChanges = useRef(false);
+  const lastSavedRef = useRef<string>('');
 
   // Load from DB once
   if (!initialized && !isLoading && id) {
@@ -175,8 +179,66 @@ export default function FlowEditor() {
 
   const handleSave = useCallback(() => {
     if (!id) return;
-    saveFlow.mutate({ flowId: id, nodes, edges, name: flow?.name });
+    const snapshot = JSON.stringify({ nodes, edges });
+    if (snapshot === lastSavedRef.current) return; // no real change
+    setSaveStatus('saving');
+    saveFlow.mutate(
+      { flowId: id, nodes, edges, name: flow?.name },
+      {
+        onSuccess: () => {
+          lastSavedRef.current = snapshot;
+          setSaveStatus('saved');
+          hasChanges.current = false;
+        },
+        onError: () => setSaveStatus('unsaved'),
+      }
+    );
   }, [id, nodes, edges, flow, saveFlow]);
+
+  // Track changes for auto-save
+  useEffect(() => {
+    if (!initialized || !id) return;
+    const snapshot = JSON.stringify({ nodes, edges });
+    if (snapshot === lastSavedRef.current) return;
+    hasChanges.current = true;
+    setSaveStatus('unsaved');
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      handleSave();
+    }, 3000);
+
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [nodes, edges, initialized, id, handleSave]);
+
+  // Ctrl+S shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleSave]);
+
+  // Save on blur (tab switch)
+  useEffect(() => {
+    const handler = () => {
+      if (hasChanges.current && id) handleSave();
+    };
+    document.addEventListener('visibilitychange', handler);
+    window.addEventListener('beforeunload', (e) => {
+      if (hasChanges.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, [handleSave, id]);
 
   const handlePaneDoubleClick = useCallback((event: React.MouseEvent) => {
     if (!reactFlowInstance) return;
@@ -230,12 +292,24 @@ export default function FlowEditor() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* Save status indicator */}
+          <div className="flex items-center gap-1.5 text-[11px] mr-1">
+            {saveStatus === 'saved' && (
+              <span className="flex items-center gap-1 text-success"><Check className="h-3 w-3" /> Salvo</span>
+            )}
+            {saveStatus === 'saving' && (
+              <span className="flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Salvando...</span>
+            )}
+            {saveStatus === 'unsaved' && (
+              <span className="flex items-center gap-1 text-warning"><Circle className="h-2.5 w-2.5 fill-current" /> Não salvo</span>
+            )}
+          </div>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Undo className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Redo className="h-4 w-4" /></Button>
           <div className="h-6 w-px bg-border mx-1" />
           <Button variant="outline" size="sm" className="gap-2 h-8"><Play className="h-3.5 w-3.5" /> Testar</Button>
-          <Button size="sm" className="gap-2 h-8" onClick={handleSave} disabled={saveFlow.isPending || !id}>
-            <Save className="h-3.5 w-3.5" /> {saveFlow.isPending ? 'Salvando...' : 'Salvar'}
+          <Button size="sm" className="gap-2 h-8" onClick={handleSave} disabled={saveFlow.isPending || !id || saveStatus === 'saved'}>
+            <Save className="h-3.5 w-3.5" /> Salvar
           </Button>
         </div>
       </div>
