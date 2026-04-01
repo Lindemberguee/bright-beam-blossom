@@ -4,7 +4,9 @@ import {
   MessageSquare, HelpCircle, GitBranch, Timer, Webhook, Tag,
   Brain, XCircle, Zap, User, Send, ListChecks, Image, FileText,
   MapPin, Globe, ShieldCheck, Repeat, Clock, Music, Video,
-  Variable, Sparkles, Plus, Trash2, Copy,
+  Variable, Sparkles, Plus, Trash2, Copy, CreditCard, Tags,
+  Pause, Headphones, Bell, Shuffle, Link2, Crosshair, Hourglass,
+  Building2, Plug, KanbanSquare,
 } from 'lucide-react';
 
 /* ── Node Actions Context ────────────────────────────────────── */
@@ -572,6 +574,233 @@ export function EndNode({ id, data, selected }: any) {
   );
 }
 
+/* ── Sales Nodes ──────────────────────────────────────────────── */
+
+export function PixButtonNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id}
+      className="bg-card border border-success/50 hover:border-success/70 shadow-[0_0_15px_-5px_hsl(var(--success)/0.2)]"
+      hasSource={false}
+      selected={selected}
+      sourceHandles={[
+        { id: 'paid', position: '30%', color: '!bg-success' },
+        { id: 'expired', position: '70%', color: '!bg-destructive' },
+      ]}
+    >
+      <NodeHeader icon={CreditCard} label={data.label} iconBg="bg-success/20" iconColor="text-success" badge="PIX" />
+      <NodeContent>
+        {data.amount ? (
+          <div className="flex items-center gap-1.5">
+            <span className="text-lg font-bold text-success">R$ {data.amount}</span>
+            {data.description && <span className="text-[9px] text-muted-foreground truncate">· {data.description}</span>}
+          </div>
+        ) : (
+          <p className="italic text-muted-foreground/50">💳 Configure valor, descrição e prazo do PIX...</p>
+        )}
+      </NodeContent>
+      {data.expiresIn && (
+        <span className="text-[9px] bg-warning/10 text-warning px-2 py-0.5 rounded-full mt-1.5 inline-block">⏳ Expira em {data.expiresIn}min</span>
+      )}
+      <div className="flex justify-between mt-2.5 text-[9px] font-semibold">
+        <span className="text-success bg-success/10 px-2 py-0.5 rounded-full">✓ Pago</span>
+        <span className="text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">✗ Expirado</span>
+      </div>
+    </NodeShell>
+  );
+}
+
+export function PixelNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-warning/30 hover:border-warning/50" selected={selected}>
+      <NodeHeader icon={Crosshair} label={data.label} iconBg="bg-warning/15" iconColor="text-warning" badge={data.platform || 'Pixel'} />
+      <NodeContent>
+        {data.eventName ? (
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-[10px] bg-warning/10 text-warning px-1.5 py-0.5 rounded">{data.eventName}</span>
+          </div>
+        ) : (
+          <p className="italic text-muted-foreground/50">📊 Configure o evento e a plataforma de tracking...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+/* ── Additional Action Nodes ─────────────────────────────────── */
+
+export function TagsNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-warning/30 hover:border-warning/50" selected={selected}>
+      <NodeHeader icon={Tags} label={data.label} iconBg="bg-warning/15" iconColor="text-warning" />
+      <NodeContent>
+        {data.tags && (data.tags as string[]).length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {(data.tags as string[]).map((t: string, i: number) => (
+              <span key={i} className="text-[9px] bg-warning/10 text-warning px-2 py-0.5 rounded-full">{t}</span>
+            ))}
+          </div>
+        ) : (
+          <p className="italic text-muted-foreground/50">🏷️ Adicione ou remova etiquetas do contato...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function NotificationNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-warning/30 hover:border-warning/50" selected={selected}>
+      <NodeHeader icon={Bell} label={data.label} iconBg="bg-warning/15" iconColor="text-warning" />
+      <NodeContent>
+        {data.content ? (
+          <p className="line-clamp-2">{data.content}</p>
+        ) : (
+          <p className="italic text-muted-foreground/50">🔔 Configure a notificação interna ou push...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function WaitResponseNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-muted-foreground/30 hover:border-muted-foreground/50" selected={selected}>
+      <NodeHeader icon={Pause} label={data.label} iconBg="bg-muted" iconColor="text-muted-foreground" />
+      <NodeContent>
+        {data.timeout ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-bold text-foreground">{data.timeout}</span>
+            <span className="text-[10px] text-muted-foreground">{data.timeoutUnit || 'min'} de espera</span>
+          </div>
+        ) : (
+          <p className="italic text-muted-foreground/50">⏸️ Aguardar resposta do contato com timeout...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function ChatControllerNode({ id, data, selected }: any) {
+  const actionLabels: Record<string, string> = {
+    open: '🟢 Abrir chat', close: '🔴 Fechar chat', pause: '⏸ Pausar bot', resume: '▶ Retomar bot',
+  };
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-info/30 hover:border-info/50" selected={selected}>
+      <NodeHeader icon={Headphones} label={data.label} iconBg="bg-info/15" iconColor="text-info" />
+      <NodeContent>
+        {data.chatAction ? (
+          <span className="text-[10px] font-medium">{actionLabels[data.chatAction] || data.chatAction}</span>
+        ) : (
+          <p className="italic text-muted-foreground/50">💬 Escolha a ação: abrir, fechar ou pausar chat...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function DistributorNode({ id, data, selected }: any) {
+  const outputs = data.outputCount || 2;
+  const handles = Array.from({ length: outputs }, (_, i) => ({
+    id: `out-${i}`,
+    position: `${((i + 1) / (outputs + 1)) * 100}%`,
+    color: '!bg-primary',
+  }));
+  return (
+    <NodeShell nodeId={id}
+      className="bg-card border border-primary/40 hover:border-primary/60"
+      hasSource={false}
+      selected={selected}
+      sourceHandles={handles}
+    >
+      <NodeHeader icon={Shuffle} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge={data.mode === 'round_robin' ? 'Round Robin' : 'Aleatório'} />
+      <NodeContent>
+        <p className="text-[10px]">{outputs} saídas · {data.mode === 'round_robin' ? 'Distribuição sequencial' : 'Distribuição aleatória'}</p>
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function DepartmentNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-primary/30 hover:border-primary/50" selected={selected}>
+      <NodeHeader icon={Building2} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" />
+      <NodeContent>
+        {data.departmentName ? (
+          <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">{data.departmentName}</span>
+        ) : (
+          <p className="italic text-muted-foreground/50">🏢 Selecione o departamento de destino...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function FlowLinkNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-info/40 hover:border-info/60" selected={selected}>
+      <NodeHeader icon={Link2} label={data.label} iconBg="bg-info/15" iconColor="text-info" />
+      <NodeContent>
+        {data.targetFlowName ? (
+          <span className="text-[10px] font-medium bg-info/10 text-info px-2 py-0.5 rounded-md">→ {data.targetFlowName}</span>
+        ) : (
+          <p className="italic text-muted-foreground/50">🔗 Conectar a outro fluxo de atendimento...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function IntegrationNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-primary/30 hover:border-primary/50" selected={selected}>
+      <NodeHeader icon={Plug} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge={data.service || undefined} />
+      <NodeContent>
+        {data.service ? (
+          <span className="text-[10px] font-medium">{data.service}: {data.actionDesc || 'Configurar...'}</span>
+        ) : (
+          <p className="italic text-muted-foreground/50">🔌 Conectar com serviço externo (CRM, ERP...)...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function SmartDelayNode({ id, data, selected }: any) {
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-warning/30 hover:border-warning/50" selected={selected}>
+      <NodeHeader icon={Hourglass} label={data.label} iconBg="bg-warning/15" iconColor="text-warning" badge="Smart" />
+      <NodeContent>
+        {data.businessHoursOnly ? (
+          <div>
+            <p className="text-[10px]">⏰ {data.startTime || '08:00'} – {data.endTime || '18:00'}</p>
+            {data.skipWeekends && <span className="text-[9px] text-muted-foreground">Pula fins de semana</span>}
+          </div>
+        ) : (
+          <p className="italic text-muted-foreground/50">⏳ Delay inteligente com horário comercial...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
+export function KanbanActionNode({ id, data, selected }: any) {
+  const actionLabels: Record<string, string> = {
+    create_card: '➕ Criar card', move_card: '➡️ Mover card', update_card: '✏️ Atualizar card',
+  };
+  return (
+    <NodeShell nodeId={id} className="bg-card border border-primary/30 hover:border-primary/50" selected={selected}>
+      <NodeHeader icon={KanbanSquare} label={data.label} iconBg="bg-primary/15" iconColor="text-primary" badge="Kanban" />
+      <NodeContent>
+        {data.kanbanAction ? (
+          <span className="text-[10px] font-medium">{actionLabels[data.kanbanAction] || data.kanbanAction}</span>
+        ) : (
+          <p className="italic text-muted-foreground/50">📋 Criar ou mover cards no Kanban...</p>
+        )}
+      </NodeContent>
+    </NodeShell>
+  );
+}
+
 /* ── Export ───────────────────────────────────────────────────── */
 
 export const flowNodeTypes = {
@@ -592,4 +821,17 @@ export const flowNodeTypes = {
   validation: ValidationNode,
   location: LocationNode,
   end: EndNode,
+  // New blocks
+  pix_button: PixButtonNode,
+  pixel: PixelNode,
+  tags: TagsNode,
+  notification: NotificationNode,
+  wait_response: WaitResponseNode,
+  chat_controller: ChatControllerNode,
+  distributor: DistributorNode,
+  department: DepartmentNode,
+  flow_link: FlowLinkNode,
+  integration: IntegrationNode,
+  smart_delay: SmartDelayNode,
+  kanban_action: KanbanActionNode,
 };

@@ -3,6 +3,8 @@ import {
   MessageSquare, HelpCircle, GitBranch, Timer, Webhook, Tag,
   Brain, XCircle, Zap, User, Send, ListChecks, Globe, ShieldCheck,
   Repeat, Clock, MapPin, Search, ChevronDown, ChevronRight, GripVertical,
+  CreditCard, Tags, Pause, Headphones, Bell, Shuffle, Link2,
+  Crosshair, Hourglass, Building2, Plug, KanbanSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -24,27 +26,47 @@ export const blockCategories = [
   { id: 'messages', label: 'Mensagens', emoji: '💬' },
   { id: 'logic', label: 'Lógica', emoji: '🧠' },
   { id: 'actions', label: 'Ações', emoji: '🎯' },
+  { id: 'sales', label: 'Vendas', emoji: '💰' },
   { id: 'integrations', label: 'Integrações', emoji: '🔗' },
   { id: 'flow', label: 'Controle', emoji: '⚙️' },
 ];
 
 export const blockTypes: BlockType[] = [
+  // Triggers
   { type: 'start', icon: Zap, label: 'Início', color: 'text-success', category: 'triggers', description: 'Ponto de entrada do fluxo' },
+  // Messages
   { type: 'message', icon: MessageSquare, label: 'Mensagem', color: 'text-primary', category: 'messages', description: 'Enviar texto, imagem ou arquivo' },
   { type: 'question', icon: HelpCircle, label: 'Pergunta', color: 'text-info', category: 'messages', description: 'Perguntar e capturar resposta' },
   { type: 'menu', icon: ListChecks, label: 'Menu', color: 'text-primary', category: 'messages', description: 'Menu interativo com botões' },
   { type: 'location', icon: MapPin, label: 'Localização', color: 'text-destructive', category: 'messages', description: 'Solicitar localização GPS' },
+  { type: 'notification', icon: Bell, label: 'Notificação', color: 'text-warning', category: 'messages', description: 'Enviar notificação push ou interna' },
+  // Logic
   { type: 'condition', icon: GitBranch, label: 'Condição', color: 'text-warning', category: 'logic', description: 'Lógica Se/Senão com variáveis' },
   { type: 'validation', icon: ShieldCheck, label: 'Validação', color: 'text-info', category: 'logic', description: 'Validar CPF, e-mail, telefone...' },
+  { type: 'wait_response', icon: Pause, label: 'Aguarda Resposta', color: 'text-muted-foreground', category: 'logic', description: 'Pausar até resposta do contato' },
+  { type: 'distributor', icon: Shuffle, label: 'Distribuidor', color: 'text-primary', category: 'logic', description: 'Distribuir aleatório ou round-robin' },
+  // Actions
   { type: 'ai', icon: Brain, label: 'IA', color: 'text-primary', category: 'actions', description: 'Resposta inteligente com IA' },
   { type: 'transfer', icon: User, label: 'Transferir', color: 'text-success', category: 'actions', description: 'Transferir para atendente' },
   { type: 'action', icon: Tag, label: 'Tag / Ação', color: 'text-primary', category: 'actions', description: 'Tags, variáveis, CRM' },
+  { type: 'tags', icon: Tags, label: 'Etiquetas', color: 'text-warning', category: 'actions', description: 'Gerenciar etiquetas do contato' },
   { type: 'send', icon: Send, label: 'Disparar', color: 'text-info', category: 'actions', description: 'Enviar notificação avulsa' },
-  { type: 'delay', icon: Timer, label: 'Delay', color: 'text-muted-foreground', category: 'flow', description: 'Aguardar tempo definido' },
-  { type: 'schedule', icon: Clock, label: 'Agendar', color: 'text-accent-foreground', category: 'flow', description: 'Executar em horário específico' },
-  { type: 'loop', icon: Repeat, label: 'Loop', color: 'text-warning', category: 'flow', description: 'Repetir bloco N vezes' },
+  { type: 'department', icon: Building2, label: 'Departamento', color: 'text-primary', category: 'actions', description: 'Encaminhar para departamento' },
+  { type: 'chat_controller', icon: Headphones, label: 'Controlador de Chat', color: 'text-info', category: 'actions', description: 'Abrir, fechar ou pausar chat' },
+  { type: 'kanban_action', icon: KanbanSquare, label: 'Kanban', color: 'text-primary', category: 'actions', description: 'Criar/mover cards no Kanban' },
+  // Sales
+  { type: 'pix_button', icon: CreditCard, label: 'Botão PIX', color: 'text-success', category: 'sales', description: 'Gerar cobrança PIX e enviar link' },
+  { type: 'pixel', icon: Crosshair, label: 'Pixel', color: 'text-warning', category: 'sales', description: 'Disparar evento de pixel/tracking' },
+  // Integrations
   { type: 'webhook', icon: Webhook, label: 'Webhook', color: 'text-primary', category: 'integrations', description: 'Chamar webhook externo' },
   { type: 'http', icon: Globe, label: 'HTTP', color: 'text-accent-foreground', category: 'integrations', description: 'Requisição HTTP completa' },
+  { type: 'integration', icon: Plug, label: 'Integração', color: 'text-primary', category: 'integrations', description: 'Conectar com serviço externo' },
+  { type: 'flow_link', icon: Link2, label: 'Conexão de Fluxo', color: 'text-info', category: 'integrations', description: 'Conectar a outro fluxo' },
+  // Flow control
+  { type: 'delay', icon: Timer, label: 'Delay', color: 'text-muted-foreground', category: 'flow', description: 'Aguardar tempo definido' },
+  { type: 'smart_delay', icon: Hourglass, label: 'Intervalo Inteligente', color: 'text-warning', category: 'flow', description: 'Delay com horário comercial' },
+  { type: 'schedule', icon: Clock, label: 'Agendar', color: 'text-accent-foreground', category: 'flow', description: 'Executar em horário específico' },
+  { type: 'loop', icon: Repeat, label: 'Loop', color: 'text-warning', category: 'flow', description: 'Repetir bloco N vezes' },
   { type: 'end', icon: XCircle, label: 'Encerrar', color: 'text-destructive', category: 'flow', description: 'Finalizar atendimento' },
 ];
 
