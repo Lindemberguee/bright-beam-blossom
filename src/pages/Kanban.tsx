@@ -79,7 +79,7 @@ export default function Kanban() {
     });
   };
 
-  if (loadingPipelines) {
+  if (loadingPipelines || authLoading) {
     return <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] text-muted-foreground">Carregando...</div>;
   }
 
