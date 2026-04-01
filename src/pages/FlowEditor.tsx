@@ -240,7 +240,7 @@ export default function FlowEditor() {
         </div>
       </div>
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-0">
         {showPalette && <FlowBlockPalette onDragStart={() => {}} />}
 
         <div className="flex-1" ref={reactFlowWrapper}>
