@@ -267,7 +267,7 @@ export function ConditionNode({ data, selected }: any) {
             {data.conditionValue && <span className="font-mono text-foreground bg-muted px-1 rounded">{data.conditionValue}</span>}
           </div>
         ) : (
-          <p>{data.content || 'Configurar condição...'}</p>
+          <p className="italic text-muted-foreground/50">🔀 Defina variável, operador e valor para a condição...</p>
         )}
       </NodeContent>
       <div className="flex justify-between mt-2.5 text-[9px] font-semibold">
