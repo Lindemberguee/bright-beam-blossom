@@ -8,7 +8,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ArrowLeft, Save, Play, Undo, Redo, PanelLeftClose, PanelLeftOpen, Check, Loader2, Circle } from 'lucide-react';
 import { flowNodeTypes, NodeActionsContext } from '@/components/flows/FlowNodeTypes';
 import { FlowBlockPalette, blockTypes, blockCategories } from '@/components/flows/FlowBlockPalette';
 import { FlowNodeConfigPanel } from '@/components/flows/FlowNodeConfigPanel';
