@@ -28,6 +28,8 @@ function NodeShell({
   hasSource = true,
   sourceHandles,
   selected,
+  nodeId,
+  nodePosition,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -37,42 +39,74 @@ function NodeShell({
   hasSource?: boolean;
   sourceHandles?: { id: string; position: string; color: string }[];
   selected?: boolean;
+  nodeId?: string;
+  nodePosition?: { x: number; y: number };
 }) {
+  const actions = useContext(NodeActionsContext);
+
   return (
-    <div
-      className={`
-        rounded-xl px-4 py-3 min-w-[210px] max-w-[260px] shadow-lg
-        transition-all duration-200 hover:shadow-xl
-        ${selected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
-        ${className}
-      `}
-    >
-      {hasTarget && (
-        <Handle
-          type="target"
-          position={Position.Top}
-          className={`${targetHandleColor} !w-3 !h-3 !border-2 !border-background !-top-1.5 transition-transform hover:!scale-125`}
-        />
+    <div className="relative group">
+      {/* Floating action toolbar */}
+      {selected && nodeId && (
+        <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-10 flex items-center gap-0.5 bg-card border border-border rounded-lg shadow-xl px-1 py-0.5 animate-fade-in">
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onAddBelow?.(nodeId, nodePosition || { x: 0, y: 0 }); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-success hover:bg-success/10 transition-colors"
+            title="Adicionar bloco abaixo"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onDuplicate?.(nodeId); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+            title="Duplicar bloco"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); actions.onDelete?.(nodeId); }}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            title="Excluir bloco"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       )}
-      {children}
-      {sourceHandles
-        ? sourceHandles.map((h) => (
-            <Handle
-              key={h.id}
-              type="source"
-              position={Position.Bottom}
-              id={h.id}
-              style={{ left: h.position }}
-              className={`${h.color} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
-            />
-          ))
-        : hasSource && (
-            <Handle
-              type="source"
-              position={Position.Bottom}
-              className={`${sourceHandleColor} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
-            />
-          )}
+      <div
+        className={`
+          rounded-xl px-4 py-3 min-w-[210px] max-w-[260px] shadow-lg
+          transition-all duration-200 hover:shadow-xl
+          ${selected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+          ${className}
+        `}
+      >
+        {hasTarget && (
+          <Handle
+            type="target"
+            position={Position.Top}
+            className={`${targetHandleColor} !w-3 !h-3 !border-2 !border-background !-top-1.5 transition-transform hover:!scale-125`}
+          />
+        )}
+        {children}
+        {sourceHandles
+          ? sourceHandles.map((h) => (
+              <Handle
+                key={h.id}
+                type="source"
+                position={Position.Bottom}
+                id={h.id}
+                style={{ left: h.position }}
+                className={`${h.color} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
+              />
+            ))
+          : hasSource && (
+              <Handle
+                type="source"
+                position={Position.Bottom}
+                className={`${sourceHandleColor} !w-3 !h-3 !border-2 !border-background !-bottom-1.5 transition-transform hover:!scale-125`}
+              />
+            )}
+      </div>
     </div>
   );
 }
