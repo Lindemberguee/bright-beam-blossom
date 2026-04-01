@@ -244,31 +244,33 @@ export default function FlowEditor() {
         {showPalette && <FlowBlockPalette onDragStart={() => {}} />}
 
         <div className="flex-1" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onNodeClick={handleNodeClick}
-            onPaneClick={() => { setSelectedNode(null); setQuickPicker(null); }}
-            onDoubleClick={handlePaneDoubleClick}
-            nodeTypes={memoizedNodeTypes}
-            fitView
-            defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'hsl(263, 70%, 58%)' } }}
-          >
-            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="hsl(225, 15%, 15%)" />
-            <Controls className="!bg-card !border-border !rounded-lg !shadow-lg" />
-            <MiniMap
-              nodeStrokeColor="hsl(263, 70%, 58%)"
-              nodeColor="hsl(225, 25%, 14%)"
-              maskColor="hsla(225, 25%, 8%, 0.8)"
-              className="!rounded-lg"
-            />
-          </ReactFlow>
+          <NodeActionsContext.Provider value={nodeActionsValue}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onInit={setReactFlowInstance}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onNodeClick={handleNodeClick}
+              onPaneClick={() => { setSelectedNode(null); setQuickPicker(null); }}
+              onDoubleClick={handlePaneDoubleClick}
+              nodeTypes={memoizedNodeTypes}
+              fitView
+              defaultEdgeOptions={{ style: { strokeWidth: 2, stroke: 'hsl(263, 70%, 58%)' } }}
+            >
+              <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="hsl(225, 15%, 15%)" />
+              <Controls className="!bg-card !border-border !rounded-lg !shadow-lg" />
+              <MiniMap
+                nodeStrokeColor="hsl(263, 70%, 58%)"
+                nodeColor="hsl(225, 25%, 14%)"
+                maskColor="hsla(225, 25%, 8%, 0.8)"
+                className="!rounded-lg"
+              />
+            </ReactFlow>
+          </NodeActionsContext.Provider>
         </div>
 
         {selectedNode && (
