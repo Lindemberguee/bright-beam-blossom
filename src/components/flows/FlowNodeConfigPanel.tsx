@@ -523,6 +523,310 @@ export function FlowNodeConfigPanel({ node, onUpdate, onClose, onDelete }: FlowN
           </Section>
         )}
 
+        {/* ─── PIX BUTTON ─── */}
+        {node.type === 'pix_button' && (
+          <Section title="Cobrança PIX">
+            <div className="space-y-1.5">
+              <FieldLabel hint="Valor em reais da cobrança">Valor (R$)</FieldLabel>
+              <Input type="number" min="0.01" step="0.01" value={data.amount || ''} onChange={(e) => update('amount', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="49.90" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Descrição do pagamento</FieldLabel>
+              <Input value={data.description || ''} onChange={(e) => update('description', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Produto X - Acesso Premium" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel hint="Tempo em minutos até expirar">Expiração (min)</FieldLabel>
+              <Input type="number" min="1" value={data.expiresIn || ''} onChange={(e) => update('expiresIn', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="30" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel hint="URL do gateway de pagamento PIX">URL do Gateway</FieldLabel>
+              <Input value={data.gatewayUrl || ''} onChange={(e) => update('gatewayUrl', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="https://api.gateway.com/pix" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem ao pagar</FieldLabel>
+              <Textarea value={data.paidMessage || ''} onChange={(e) => update('paidMessage', e.target.value)} className="text-sm bg-muted/50 min-h-[50px]" placeholder="Pagamento confirmado! ✅ Aqui está seu acesso:" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem se expirar</FieldLabel>
+              <Textarea value={data.expiredMessage || ''} onChange={(e) => update('expiredMessage', e.target.value)} className="text-sm bg-muted/50 min-h-[50px]" placeholder="O pagamento expirou. Gerar novo?" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Salvar status em</FieldLabel>
+              <Input value={data.variable || ''} onChange={(e) => update('variable', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="{{pix_status}}" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── PIXEL ─── */}
+        {node.type === 'pixel' && (
+          <Section title="Tracking Pixel">
+            <div className="space-y-1.5">
+              <FieldLabel>Plataforma</FieldLabel>
+              <Select value={data.platform || 'facebook'} onValueChange={(v) => update('platform', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="facebook">Facebook Pixel</SelectItem>
+                  <SelectItem value="google">Google Analytics</SelectItem>
+                  <SelectItem value="tiktok">TikTok Pixel</SelectItem>
+                  <SelectItem value="custom">Custom Webhook</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Nome do evento</FieldLabel>
+              <Input value={data.eventName || ''} onChange={(e) => update('eventName', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="Purchase, Lead, ViewContent" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel hint="ID do pixel ou tag">Pixel ID</FieldLabel>
+              <Input value={data.pixelId || ''} onChange={(e) => update('pixelId', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="123456789" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Dados extras (JSON)</FieldLabel>
+              <Textarea value={data.eventData || ''} onChange={(e) => update('eventData', e.target.value)} className="text-sm bg-muted/50 font-mono min-h-[60px]" placeholder={'{\n  "value": "{{valor}}",\n  "currency": "BRL"\n}'} />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── TAGS ─── */}
+        {node.type === 'tags' && (
+          <Section title="Etiquetas">
+            <div className="space-y-1.5">
+              <FieldLabel>Ação</FieldLabel>
+              <Select value={data.tagAction || 'add'} onValueChange={(v) => update('tagAction', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="add">Adicionar etiquetas</SelectItem>
+                  <SelectItem value="remove">Remover etiquetas</SelectItem>
+                  <SelectItem value="clear">Limpar todas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel hint="Separe por vírgula">Etiquetas</FieldLabel>
+              <Input value={(data.tags || []).join(', ')} onChange={(e) => update('tags', e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean))} className="h-8 text-sm bg-muted/50" placeholder="vip, comprou, lead-quente" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── NOTIFICATION ─── */}
+        {node.type === 'notification' && (
+          <Section title="Notificação">
+            <div className="space-y-1.5">
+              <FieldLabel>Tipo</FieldLabel>
+              <Select value={data.notificationType || 'internal'} onValueChange={(v) => update('notificationType', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">🔔 Interna (equipe)</SelectItem>
+                  <SelectItem value="email">📧 E-mail</SelectItem>
+                  <SelectItem value="webhook">🔗 Webhook</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem</FieldLabel>
+              <Textarea value={data.content || ''} onChange={(e) => update('content', e.target.value)} className="text-sm bg-muted/50 min-h-[60px]" placeholder="Novo lead qualificado: {{nome}}" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Destinatário</FieldLabel>
+              <Input value={data.recipient || ''} onChange={(e) => update('recipient', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="vendas@empresa.com ou @equipe" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── WAIT RESPONSE ─── */}
+        {node.type === 'wait_response' && (
+          <Section title="Aguardar Resposta">
+            <div className="space-y-1.5">
+              <FieldLabel>Timeout</FieldLabel>
+              <div className="flex gap-2">
+                <Input type="number" min="1" value={data.timeout || ''} onChange={(e) => update('timeout', e.target.value)} className="h-8 text-sm bg-muted/50 w-24" placeholder="30" />
+                <Select value={data.timeoutUnit || 'minutes'} onValueChange={(v) => update('timeoutUnit', v)}>
+                  <SelectTrigger className="h-8 text-sm bg-muted/50 flex-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="seconds">Segundos</SelectItem>
+                    <SelectItem value="minutes">Minutos</SelectItem>
+                    <SelectItem value="hours">Horas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Salvar resposta em</FieldLabel>
+              <Input value={data.variable || ''} onChange={(e) => update('variable', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="{{resposta}}" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem se timeout</FieldLabel>
+              <Input value={data.timeoutMessage || ''} onChange={(e) => update('timeoutMessage', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Não recebi sua resposta..." />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── CHAT CONTROLLER ─── */}
+        {node.type === 'chat_controller' && (
+          <Section title="Controlador de Chat">
+            <div className="space-y-1.5">
+              <FieldLabel>Ação</FieldLabel>
+              <Select value={data.chatAction || 'open'} onValueChange={(v) => update('chatAction', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">🟢 Abrir chat</SelectItem>
+                  <SelectItem value="close">🔴 Fechar chat</SelectItem>
+                  <SelectItem value="pause">⏸ Pausar bot</SelectItem>
+                  <SelectItem value="resume">▶ Retomar bot</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem (opcional)</FieldLabel>
+              <Input value={data.content || ''} onChange={(e) => update('content', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Chat encerrado pelo bot" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── DISTRIBUTOR ─── */}
+        {node.type === 'distributor' && (
+          <Section title="Distribuidor">
+            <div className="space-y-1.5">
+              <FieldLabel>Modo de distribuição</FieldLabel>
+              <Select value={data.mode || 'random'} onValueChange={(v) => update('mode', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="random">🎲 Aleatório</SelectItem>
+                  <SelectItem value="round_robin">🔄 Round Robin</SelectItem>
+                  <SelectItem value="weighted">⚖️ Peso percentual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Número de saídas</FieldLabel>
+              <Input type="number" min="2" max="10" value={data.outputCount || 2} onChange={(e) => update('outputCount', parseInt(e.target.value) || 2)} className="h-8 text-sm bg-muted/50 w-24" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── DEPARTMENT ─── */}
+        {node.type === 'department' && (
+          <Section title="Departamento">
+            <div className="space-y-1.5">
+              <FieldLabel>Nome do departamento</FieldLabel>
+              <Input value={data.departmentName || ''} onChange={(e) => update('departmentName', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Vendas, Suporte, Financeiro" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem de encaminhamento</FieldLabel>
+              <Textarea value={data.content || ''} onChange={(e) => update('content', e.target.value)} className="text-sm bg-muted/50 min-h-[50px]" placeholder="Encaminhando para o departamento..." />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── FLOW LINK ─── */}
+        {node.type === 'flow_link' && (
+          <Section title="Conexão de Fluxo">
+            <div className="space-y-1.5">
+              <FieldLabel hint="ID ou nome do fluxo de destino">Fluxo de destino</FieldLabel>
+              <Input value={data.targetFlowName || ''} onChange={(e) => update('targetFlowName', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Nome do fluxo destino" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel hint="ID interno do fluxo">Flow ID</FieldLabel>
+              <Input value={data.targetFlowId || ''} onChange={(e) => update('targetFlowId', e.target.value)} className="h-8 text-sm bg-muted/50 font-mono" placeholder="uuid-do-fluxo" />
+            </div>
+            <div className="flex items-center justify-between">
+              <FieldLabel hint="Passa variáveis do fluxo atual">Herdar variáveis</FieldLabel>
+              <Switch checked={data.inheritVariables ?? true} onCheckedChange={(v) => update('inheritVariables', v)} />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── INTEGRATION ─── */}
+        {node.type === 'integration' && (
+          <Section title="Integração Externa">
+            <div className="space-y-1.5">
+              <FieldLabel>Serviço</FieldLabel>
+              <Select value={data.service || ''} onValueChange={(v) => update('service', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hubspot">HubSpot</SelectItem>
+                  <SelectItem value="pipedrive">Pipedrive</SelectItem>
+                  <SelectItem value="rdstation">RD Station</SelectItem>
+                  <SelectItem value="google_sheets">Google Sheets</SelectItem>
+                  <SelectItem value="zapier">Zapier</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Ação</FieldLabel>
+              <Input value={data.actionDesc || ''} onChange={(e) => update('actionDesc', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Criar lead, Atualizar deal..." />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Dados (JSON)</FieldLabel>
+              <Textarea value={data.integrationData || ''} onChange={(e) => update('integrationData', e.target.value)} className="text-sm bg-muted/50 font-mono min-h-[60px]" placeholder={'{\n  "name": "{{nome}}"\n}'} />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── SMART DELAY ─── */}
+        {node.type === 'smart_delay' && (
+          <Section title="Intervalo Inteligente">
+            <div className="flex items-center justify-between">
+              <FieldLabel>Apenas horário comercial</FieldLabel>
+              <Switch checked={data.businessHoursOnly ?? true} onCheckedChange={(v) => update('businessHoursOnly', v)} />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Horário de início</FieldLabel>
+              <Input type="time" value={data.startTime || '08:00'} onChange={(e) => update('startTime', e.target.value)} className="h-8 text-sm bg-muted/50" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Horário de fim</FieldLabel>
+              <Input type="time" value={data.endTime || '18:00'} onChange={(e) => update('endTime', e.target.value)} className="h-8 text-sm bg-muted/50" />
+            </div>
+            <div className="flex items-center justify-between">
+              <FieldLabel>Pular fins de semana</FieldLabel>
+              <Switch checked={data.skipWeekends ?? true} onCheckedChange={(v) => update('skipWeekends', v)} />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Mensagem fora do horário</FieldLabel>
+              <Textarea value={data.offHoursMessage || ''} onChange={(e) => update('offHoursMessage', e.target.value)} className="text-sm bg-muted/50 min-h-[50px]" placeholder="Nosso horário é de 08h às 18h. Retornaremos em breve!" />
+            </div>
+          </Section>
+        )}
+
+        {/* ─── KANBAN ACTION ─── */}
+        {node.type === 'kanban_action' && (
+          <Section title="Ação no Kanban">
+            <div className="space-y-1.5">
+              <FieldLabel>Ação</FieldLabel>
+              <Select value={data.kanbanAction || 'create_card'} onValueChange={(v) => update('kanbanAction', v)}>
+                <SelectTrigger className="h-8 text-sm bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="create_card">➕ Criar card</SelectItem>
+                  <SelectItem value="move_card">➡️ Mover card</SelectItem>
+                  <SelectItem value="update_card">✏️ Atualizar card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Pipeline</FieldLabel>
+              <Input value={data.pipelineName || ''} onChange={(e) => update('pipelineName', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Vendas" />
+            </div>
+            <div className="space-y-1.5">
+              <FieldLabel>Coluna</FieldLabel>
+              <Input value={data.columnName || ''} onChange={(e) => update('columnName', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="Qualificado" />
+            </div>
+            {data.kanbanAction === 'create_card' && (
+              <>
+                <div className="space-y-1.5">
+                  <FieldLabel>Título do card</FieldLabel>
+                  <Input value={data.cardTitle || ''} onChange={(e) => update('cardTitle', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="{{nome}} - Lead" />
+                </div>
+                <div className="space-y-1.5">
+                  <FieldLabel>Valor (R$)</FieldLabel>
+                  <Input type="number" value={data.cardValue || ''} onChange={(e) => update('cardValue', e.target.value)} className="h-8 text-sm bg-muted/50" placeholder="0.00" />
+                </div>
+              </>
+            )}
+          </Section>
+        )}
+
         {/* ─── END ─── */}
         {node.type === 'end' && (
           <Section title="Encerramento">
