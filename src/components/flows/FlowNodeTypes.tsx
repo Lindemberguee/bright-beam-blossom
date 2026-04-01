@@ -391,7 +391,7 @@ export function SendNode({ data, selected }: any) {
     <NodeShell className="bg-card border border-info/30 hover:border-info/50" targetHandleColor="!bg-info" sourceHandleColor="!bg-info" selected={selected}>
       <NodeHeader icon={Send} label={data.label} iconBg="bg-info/15" iconColor="text-info" />
       <NodeContent>
-        <p className="line-clamp-2">{data.content || 'Disparar mensagem/notificação...'}</p>
+        {data.content ? <p className="line-clamp-2">{data.content}</p> : <p className="italic text-muted-foreground/50">📤 Configure a mensagem ou notificação a disparar...</p>}
       </NodeContent>
       {data.mediaType && data.mediaType !== 'none' && <MediaIndicator type={data.mediaType} />}
     </NodeShell>
