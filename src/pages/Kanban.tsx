@@ -11,6 +11,7 @@ import { Plus, BarChart3, DollarSign, Layers } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Kanban() {
+  const { profile, loading: authLoading } = useAuth();
   const { data: pipelines = [], isLoading: loadingPipelines } = usePipelines();
   const createPipeline = useCreatePipeline();
   const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(null);
