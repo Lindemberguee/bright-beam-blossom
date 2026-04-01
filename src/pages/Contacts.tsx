@@ -1,79 +1,60 @@
-import { useState } from 'react';
-import { useContacts, useCreateContact, useDeleteContact, DbContact } from '@/hooks/useContacts';
+import { useState, useMemo } from 'react';
+import { useContacts, useDeleteContact, DbContact } from '@/hooks/useContacts';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { CreateContactDialog } from '@/components/contacts/CreateContactDialog';
+import { ContactDetailSheet } from '@/components/contacts/ContactDetailSheet';
+import { ContactFilters } from '@/components/contacts/ContactFilters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import {
-  Search, Plus, Filter, Download, Upload, MoreHorizontal, Grid3x3, List,
-  Phone, Mail, Building2, Star, ChevronLeft, ChevronRight, Trash2, Loader2,
+  Search, Plus, Download, Upload, MoreHorizontal, Grid3x3, List,
+  Phone, Mail, Building2, Star, Trash2, Loader2, Users, UserPlus, UserCheck,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-function CreateContactDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [company, setCompany] = useState('');
-  const createContact = useCreateContact();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createContact.mutateAsync({ name, phone: phone || undefined, email: email || undefined, company: company || undefined });
-    setName(''); setPhone(''); setEmail(''); setCompany('');
-    onOpenChange(false);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Novo Contato</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Nome *</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome completo" required />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Telefone</Label>
-            <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+55 11 99999-9999" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Email</Label>
-            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@empresa.com" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Empresa</Label>
-            <Input value={company} onChange={e => setCompany(e.target.value)} placeholder="Nome da empresa" />
-          </div>
-          <Button type="submit" className="w-full" disabled={createContact.isPending}>
-            {createContact.isPending ? 'Criando...' : 'Criar Contato'}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 export default function Contacts() {
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<DbContact | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [filters, setFilters] = useState({ status: 'all', source: 'all' });
   const { data: contacts = [], isLoading } = useContacts(search);
   const deleteContact = useDeleteContact();
 
+  const filtered = useMemo(() => {
+    return contacts.filter(c => {
+      if (filters.status !== 'all' && c.status !== filters.status) return false;
+      if (filters.source !== 'all' && c.source !== filters.source) return false;
+      return true;
+    });
+  }, [contacts, filters]);
+
+  const stats = useMemo(() => ({
+    total: contacts.length,
+    leads: contacts.filter(c => c.status === 'lead').length,
+    active: contacts.filter(c => c.status === 'active').length,
+    customers: contacts.filter(c => c.status === 'customer').length,
+  }), [contacts]);
+
+  const openDetail = (contact: DbContact) => {
+    setSelectedContact(contact);
+    setDetailOpen(true);
+  };
+
+  const initials = (name: string) => name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <div className="p-6 space-y-5 animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">Contatos</h1>
-          <p className="text-sm text-muted-foreground">{contacts.length} contatos cadastrados</p>
+          <p className="text-sm text-muted-foreground">{filtered.length} de {contacts.length} contatos</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-2"><Upload className="h-4 w-4" /> Importar</Button>
@@ -82,14 +63,21 @@ export default function Contacts() {
         </div>
       </div>
 
-      <CreateContactDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard icon={Users} label="Total" value={stats.total} color="text-primary" />
+        <StatCard icon={UserPlus} label="Leads" value={stats.leads} color="text-blue-500" />
+        <StatCard icon={Star} label="Ativos" value={stats.active} color="text-emerald-500" />
+        <StatCard icon={UserCheck} label="Clientes" value={stats.customers} color="text-violet-500" />
+      </div>
 
+      {/* Toolbar */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por nome, telefone..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-muted/50 border-border/50" />
+          <Input placeholder="Buscar por nome, telefone, email..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-muted/50 border-border/50" />
         </div>
-        <Button variant="outline" size="sm" className="gap-2"><Filter className="h-4 w-4" /> Filtros</Button>
+        <ContactFilters filters={filters} onChange={setFilters} />
         <div className="flex border border-border rounded-lg overflow-hidden ml-auto">
           <button onClick={() => setView('list')} className={cn("p-2 transition-colors", view === 'list' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent')}>
             <List className="h-4 w-4" />
@@ -100,14 +88,23 @@ export default function Contacts() {
         </div>
       </div>
 
+      {/* Dialogs */}
+      <CreateContactDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <ContactDetailSheet contact={selectedContact} open={detailOpen} onOpenChange={setDetailOpen} />
+
+      {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : contacts.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-muted-foreground mb-4">Nenhum contato encontrado</p>
-          <Button size="sm" onClick={() => setDialogOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Criar primeiro contato</Button>
+          <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center mb-4">
+            <Users className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground mb-1 font-medium">Nenhum contato encontrado</p>
+          <p className="text-xs text-muted-foreground mb-4">Crie seu primeiro contato para começar</p>
+          <Button size="sm" onClick={() => setDialogOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Criar contato</Button>
         </div>
       ) : view === 'list' ? (
         <div className="glass-card rounded-xl overflow-hidden">
@@ -120,16 +117,17 @@ export default function Contacts() {
                 <TableHead className="text-muted-foreground">Status</TableHead>
                 <TableHead className="text-muted-foreground">Score</TableHead>
                 <TableHead className="text-muted-foreground">Etiquetas</TableHead>
+                <TableHead className="text-muted-foreground">Origem</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contacts.map((contact) => (
-                <TableRow key={contact.id} className="border-border/30 hover:bg-accent/50 cursor-pointer transition-colors">
+              {filtered.map(contact => (
+                <TableRow key={contact.id} className="border-border/30 hover:bg-accent/50 cursor-pointer transition-colors" onClick={() => openDetail(contact)}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
-                        {contact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        {initials(contact.name)}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">{contact.name}</p>
@@ -156,13 +154,17 @@ export default function Contacts() {
                       {(contact.tags ?? []).length > 2 && <span className="text-[10px] text-muted-foreground">+{contact.tags.length - 2}</span>}
                     </div>
                   </TableCell>
+                  <TableCell className="text-xs text-muted-foreground capitalize">{contact.source ?? '-'}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><MoreHorizontal className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={e => e.stopPropagation()}>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="text-destructive gap-2" onClick={() => deleteContact.mutate(contact.id)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openDetail(contact); }}>Ver detalhes</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive gap-2" onClick={(e) => { e.stopPropagation(); deleteContact.mutate(contact.id); }}>
                           <Trash2 className="h-4 w-4" /> Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -175,11 +177,11 @@ export default function Contacts() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {contacts.map((contact) => (
-            <div key={contact.id} className="glass-card rounded-xl p-4 hover:border-primary/30 transition-all cursor-pointer">
+          {filtered.map(contact => (
+            <div key={contact.id} onClick={() => openDetail(contact)} className="glass-card rounded-xl p-4 hover:border-primary/30 transition-all cursor-pointer group">
               <div className="flex items-start justify-between mb-3">
-                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
-                  {contact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary group-hover:bg-primary/30 transition-colors">
+                  {initials(contact.name)}
                 </div>
                 <StatusBadge status={contact.status as any} />
               </div>
@@ -196,15 +198,29 @@ export default function Contacts() {
               </div>
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
                 <div className="flex items-center gap-1">
-                  <Star className="h-3 w-3 text-warning" />
+                  <Star className="h-3 w-3 text-yellow-500" />
                   <span className="text-xs font-medium text-foreground">{contact.score}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">{contact.source}</span>
+                <span className="text-[10px] text-muted-foreground capitalize">{contact.source}</span>
               </div>
             </div>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
+  return (
+    <div className="glass-card rounded-xl p-4 flex items-center gap-3">
+      <div className={cn("h-10 w-10 rounded-xl bg-muted/60 flex items-center justify-center", color)}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
+      </div>
     </div>
   );
 }
